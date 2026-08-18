@@ -139,37 +139,35 @@ export default function ProfilePage() {
       />
 
       {/* STICKY GLASS HEADER */}
-      <div className="sticky top-0 z-50 px-4 py-3 bg-[var(--bg-base)]/60 backdrop-blur-3xl border-b border-[var(--border)] flex items-center justify-between shadow-sm">
+      <div className="sticky top-0 z-50 px-4 py-3 bg-[var(--bg-glass)] backdrop-blur-md border-b border-[var(--border)] flex items-center justify-between">
         <button 
           onClick={() => router.back()} 
-          className="flex items-center gap-2 px-3 py-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] rounded-full transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] rounded-lg transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm font-medium">Back</span>
+          <span>Back</span>
         </button>
-        <span className="text-[13px] font-semibold tracking-wider uppercase text-[var(--text-secondary)]">Profile Settings</span>
-        <div className="w-[70px]"></div> {/* spacer to center title */}
+        <span className="text-[13px] font-medium tracking-wider uppercase text-[var(--text-secondary)] opacity-60">Profile Settings</span>
+        <div className="w-[70px]"></div>
       </div>
 
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 relative z-10 animate-slide-up mt-8">
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 relative z-10 animate-slide-up mt-6 space-y-6">
         
         {/* HERO CARD */}
-        <div className="bg-[var(--bg-surface)] backdrop-blur-xl border border-[var(--border)] rounded-3xl overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/40 mb-8 transition-all relative group">
+        <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg overflow-hidden transition-all relative">
           
           {/* Cover Banner */}
           <div 
-            className="w-full h-32 sm:h-48 relative transition-colors duration-500 overflow-hidden"
+            className="w-full h-28 sm:h-40 relative transition-colors duration-500 overflow-hidden"
             style={{ backgroundColor: formData.coverColor }}
           >
-            {/* Overlay texture */}
             <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/20 to-transparent" />
             
             <label 
-              className="absolute top-4 right-4 bg-black/30 backdrop-blur-md hover:bg-black/50 text-white p-2 rounded-full cursor-pointer transition-all flex items-center justify-center border border-white/10 group/colbtn shadow-lg"
+              className="absolute top-4 right-4 bg-black/40 text-white p-2 rounded-lg cursor-pointer transition-all flex items-center justify-center border border-white/20 hover:bg-black/60"
               title="Change cover color"
             >
-              <PaintBucket className="w-4 h-4 group-hover/colbtn:rotate-12 transition-transform" />
+              <PaintBucket className="w-4 h-4" />
               <input 
                 type="color" 
                 value={formData.coverColor} 
@@ -179,9 +177,9 @@ export default function ProfilePage() {
             </label>
           </div>
 
-          <div className="px-6 pb-8 sm:px-10 flex flex-col sm:flex-row gap-6 relative">
+          <div className="px-6 pb-6 sm:px-8 flex flex-col sm:flex-row gap-6 relative">
             {/* Avatar overlaps banner */}
-            <div className="-mt-16 sm:-mt-20 relative z-10 p-2 bg-[var(--bg-surface)] rounded-full border border-[var(--border)] shadow-xl inline-block">
+            <div className="-mt-12 sm:-mt-16 relative z-10 p-1.5 bg-[var(--bg-surface)] rounded-full border border-[var(--border)] shadow-md inline-block">
               <AvatarUpload 
                 currentAvatarUrl={formData.avatarUrl}
                 displayName={formData.displayName}
@@ -190,38 +188,38 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div className="flex-1 mt-2 sm:mt-4">
+            <div className="flex-1 mt-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-display font-bold text-[var(--text-primary)] tracking-tight">
+                  <h1 className="text-[28px] font-semibold text-[var(--text-primary)] tracking-tight leading-tight">
                     {formData.displayName || "Unknown User"}
                   </h1>
                   <div className="flex items-center gap-2 mt-1">
-                    <p className="text-[14px] text-[var(--text-secondary)]">{formData.email}</p>
+                    <p className="text-sm text-[var(--text-secondary)] opacity-60">{formData.email}</p>
                     <span className="w-1 h-1 bg-[var(--border-strong)] rounded-full" />
                     <button 
                       onClick={copyUserId} 
-                      className="group/copy flex items-center gap-1.5 text-[12px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors py-1 px-2 rounded-md hover:bg-[var(--bg-elevated)]" 
+                      className="flex items-center gap-1 text-xs text-[var(--text-secondary)] opacity-60 hover:opacity-100 transition-opacity py-0.5 px-2 rounded-md hover:bg-[var(--bg-elevated)]" 
                       title="Copy User ID"
                     >
-                      <Copy className="w-3.5 h-3.5 group-hover/copy:scale-110 transition-transform" />
+                      <Copy className="w-3.5 h-3.5" />
                       ID
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Status Input right in the header */}
-              <div className="mt-5 relative w-full max-w-md">
+              {/* Status Input */}
+              <div className="mt-4 relative w-full max-w-md">
                 <input
                   type="text"
                   placeholder="What's your status right now?"
-                  className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-xl border border-[var(--border)] focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-glow)] outline-none transition-all placeholder:text-[var(--text-tertiary)] text-sm"
+                  className="w-full pl-9 pr-4 py-2 bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-lg border border-[var(--border)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)] text-sm"
                   value={formData.customStatus}
                   onChange={(e) => handleChange("customStatus", e.target.value)}
                   maxLength={80}
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[16px]">💭</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm">💭</span>
               </div>
             </div>
           </div>
@@ -229,33 +227,33 @@ export default function ProfilePage() {
 
         {/* Global Error Banner */}
         {errorVisible && (
-          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[14px] font-medium flex items-center shadow-sm animate-slide-up">
+          <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm font-medium flex items-center">
             <AlertCircle className="w-5 h-5 mr-3 shrink-0" />
             {errorVisible}
           </div>
         )}
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* LEFT COLUMN: Main Info */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6">
             
             {/* Basic Info Card */}
-            <div className="bg-[var(--bg-surface)] backdrop-blur-md border border-[var(--border)] rounded-3xl p-6 sm:p-8 shadow-sm">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="p-2 bg-blue-500/10 text-blue-500 rounded-lg"><UserIcon className="w-5 h-5" /></div>
-                <h2 className="text-lg font-bold">Personal Details</h2>
+            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <UserIcon className="w-5 h-5 text-[var(--accent)]" />
+                <h2 className="text-[18px] font-semibold text-[var(--text-primary)] tracking-tight">Personal Details</h2>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-[13px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1">Username</label>
+                  <label className="block text-[13px] font-medium text-[var(--text-secondary)] mb-1.5">Username</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] font-mono">@</span>
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] font-mono">@</span>
                     <input 
                       type="text" 
-                      className="w-full pl-9 pr-4 py-3 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-glow)] outline-none transition-all font-medium" 
+                      className="w-full pl-8 pr-4 py-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] text-sm focus:border-[var(--accent)] outline-none transition-all" 
                       value={formData.username || ""}
                       onChange={(e) => {
                         const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -264,14 +262,14 @@ export default function ProfilePage() {
                       maxLength={20}
                     />
                   </div>
-                  {formData.username && formData.username.length < 3 && <p className="text-xs text-red-500 mt-2 ml-1">Must be at least 3 characters</p>}
+                  {formData.username && formData.username.length < 3 && <p className="text-xs text-red-500 mt-1">Must be at least 3 characters</p>}
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1">Display Name</label>
+                  <label className="block text-[13px] font-medium text-[var(--text-secondary)] mb-1.5">Display Name</label>
                   <input 
                     type="text" 
-                    className="w-full px-4 py-3 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-glow)] outline-none transition-all font-medium" 
+                    className="w-full px-3.5 py-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] text-sm focus:border-[var(--accent)] outline-none transition-all" 
                     value={formData.displayName}
                     onChange={(e) => handleChange("displayName", e.target.value)}
                     required
@@ -279,12 +277,12 @@ export default function ProfilePage() {
                 </div>
                 
                 <div>
-                  <label className="flex justify-between items-center text-[13px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1">
+                  <label className="flex justify-between items-center text-[13px] font-medium text-[var(--text-secondary)] mb-1.5">
                     <span>Bio</span>
-                    <span className="text-[var(--text-tertiary)] font-normal normal-case">{formData.bio?.length || 0} / 160</span>
+                    <span className="text-xs text-[var(--text-tertiary)] font-normal">{formData.bio?.length || 0} / 160</span>
                   </label>
                   <textarea 
-                    className="w-full px-4 py-3 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-glow)] outline-none transition-all resize-none text-[15px] leading-relaxed" 
+                    className="w-full px-3.5 py-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] text-sm focus:border-[var(--accent)] outline-none transition-all resize-none leading-relaxed" 
                     rows={3}
                     placeholder="Tell your team about yourself..."
                     value={formData.bio}
@@ -294,10 +292,10 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1">Timezone</label>
+                  <label className="block text-[13px] font-medium text-[var(--text-secondary)] mb-1.5">Timezone</label>
                   <div className="relative">
                     <select 
-                      className="w-full px-4 py-3 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-glow)] outline-none transition-all appearance-none cursor-pointer font-medium"
+                      className="w-full px-3.5 py-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] text-sm focus:border-[var(--accent)] outline-none transition-all appearance-none cursor-pointer"
                       value={formData.timezone}
                       onChange={(e) => handleChange("timezone", e.target.value)}
                     >
@@ -305,33 +303,33 @@ export default function ProfilePage() {
                         <option key={tz} value={tz}>{tz}</option>
                       ))}
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none w-2 h-2 border-b-2 border-r-2 border-[var(--text-tertiary)] rotate-45" />
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none w-2 h-2 border-b-2 border-r-2 border-[var(--text-tertiary)] rotate-45" />
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Social Links Card */}
-            <div className="bg-[var(--bg-surface)] backdrop-blur-md border border-[var(--border)] rounded-3xl p-6 sm:p-8 shadow-sm">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="p-2 bg-purple-500/10 text-purple-500 rounded-lg"><Globe className="w-5 h-5" /></div>
-                <h2 className="text-lg font-bold">Social Profiles</h2>
+            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Globe className="w-5 h-5 text-[var(--accent)]" />
+                <h2 className="text-[18px] font-semibold text-[var(--text-primary)] tracking-tight">Social Profiles</h2>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
                   { id: 'twitter', icon: Twitter, color: 'text-sky-500', placeholder: 'Twitter Username' },
-                  { id: 'github', icon: Github, color: 'text-gray-600 dark:text-gray-300', placeholder: 'GitHub Username' },
-                  { id: 'linkedin', icon: Linkedin, color: 'text-blue-600', placeholder: 'LinkedIn URL' },
-                  { id: 'website', icon: Globe, color: 'text-green-500', placeholder: 'Personal Website' }
+                  { id: 'github', icon: Github, color: 'text-gray-400', placeholder: 'GitHub Username' },
+                  { id: 'linkedin', icon: Linkedin, color: 'text-blue-500', placeholder: 'LinkedIn URL' },
+                  { id: 'website', icon: Globe, color: 'text-emerald-500', placeholder: 'Personal Website' }
                 ].map((social) => (
-                  <div key={social.id} className="group flex items-center bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl focus-within:border-[var(--accent)] focus-within:ring-4 focus-within:ring-[var(--accent-glow)] transition-all overflow-hidden">
-                    <div className="pl-4 pr-3 py-3 border-r border-[var(--border)] bg-black/[0.02] dark:bg-white/[0.02]">
-                      <social.icon className={`w-[18px] h-[18px] ${social.color} opacity-80 group-focus-within:opacity-100 transition-opacity`} />
+                  <div key={social.id} className="flex items-center bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg focus-within:border-[var(--accent)] transition-all overflow-hidden">
+                    <div className="pl-3 pr-2 py-2 border-r border-[var(--border)]">
+                      <social.icon className={`w-4 h-4 ${social.color}`} />
                     </div>
                     <input 
                       type="text" 
-                      className="flex-1 px-4 py-3 bg-transparent text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)] w-full" 
+                      className="flex-1 px-3 py-2 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)] w-full" 
                       value={formData.socialLinks[social.id]} 
                       onChange={(e) => handleChange(`socialLinks.${social.id}`, e.target.value)} 
                       placeholder={social.placeholder} 
@@ -344,26 +342,26 @@ export default function ProfilePage() {
           </div>
 
           {/* RIGHT COLUMN: Settings */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             
             {/* Preferences */}
-            <div className="bg-[var(--bg-surface)] backdrop-blur-md border border-[var(--border)] rounded-3xl p-6 sm:p-8 shadow-sm">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="p-2 bg-orange-500/10 text-orange-500 rounded-lg"><Monitor className="w-5 h-5" /></div>
-                <h2 className="text-lg font-bold">App Settings</h2>
+            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Monitor className="w-5 h-5 text-[var(--accent)]" />
+                <h2 className="text-[18px] font-semibold text-[var(--text-primary)] tracking-tight">App Settings</h2>
               </div>
               
-              <div className="mb-8">
-                <label className="block text-[12px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-3">Theme</label>
-                <div className="flex bg-[var(--bg-elevated)] p-1 rounded-xl border border-[var(--border)]">
+              <div className="mb-6">
+                <label className="block text-[13px] font-medium text-[var(--text-secondary)] mb-2">Theme</label>
+                <div className="flex bg-[var(--bg-elevated)] p-1 rounded-lg border border-[var(--border)]">
                   {['light', 'dark', 'system'].map((t) => (
                     <button
                       key={t}
                       onClick={() => handleChange("theme", t)}
-                      className={`flex-1 py-2 text-[13px] capitalize font-medium rounded-lg transition-all ${
+                      className={`flex-1 py-1.5 text-[13px] capitalize font-medium rounded-md transition-all ${
                         formData.theme === t 
-                        ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm ring-1 ring-[var(--border)]' 
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border)]' 
+                        : 'text-[var(--text-secondary)] opacity-60 hover:opacity-100'
                       }`}
                     >
                       {t}
@@ -373,17 +371,17 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-[12px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4 flex items-center justify-between">
+                <label className="block text-[13px] font-medium text-[var(--text-secondary)] mb-3 flex items-center justify-between">
                   <span>Notifications</span>
-                  <Bell className="w-3.5 h-3.5" />
+                  <Bell className="w-4 h-4 opacity-60" />
                 </label>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {[
-                    { key: "mentions", label: "Mentions & replies", desc: "Get notified when someone @tags you" },
+                    { key: "mentions", label: "Mentions & replies", desc: "Get notified when tagged" },
                     { key: "allMessages", label: "All messages", desc: "Notify for every new message" },
-                    { key: "sounds", label: "Play sounds", desc: "Play a \"bing\" on incoming messages" }
+                    { key: "sounds", label: "Play sounds", desc: "Play notification audio" }
                   ].map((item) => (
-                    <label key={item.key} className="flex items-start gap-4 cursor-pointer group">
+                    <label key={item.key} className="flex items-start gap-3 cursor-pointer">
                       <div className="relative mt-0.5">
                         <input 
                           type="checkbox" 
@@ -391,12 +389,12 @@ export default function ProfilePage() {
                           onChange={(e) => handleNotificationChange(item.key, e.target.checked)} 
                           className="peer sr-only" 
                         />
-                        <div className="w-10 h-6 bg-[var(--border-strong)] rounded-full peer-checked:bg-[var(--success)] transition-colors peer-focus-visible:ring-4 peer-focus-visible:ring-[var(--success)]/20" />
-                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow border border-black/5" />
+                        <div className="w-9 h-5 bg-[var(--border-strong)] rounded-full peer-checked:bg-[var(--accent)] transition-colors" />
+                        <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-[14px] font-medium text-[var(--text-primary)]">{item.label}</p>
-                        <p className="text-[12px] text-[var(--text-secondary)] leading-snug">{item.desc}</p>
+                        <p className="text-xs font-semibold text-[var(--text-primary)]">{item.label}</p>
+                        <p className="text-[11px] text-[var(--text-secondary)] opacity-60">{item.desc}</p>
                       </div>
                     </label>
                   ))}
@@ -408,26 +406,26 @@ export default function ProfilePage() {
         </div>
         
         {/* Sticky Save Actions (Floating Bar) */}
-        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isDirty ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"}`}>
-          <div className="bg-[var(--text-primary)]/95 backdrop-blur-2xl text-[var(--bg-base)] rounded-full p-2 pl-6 sm:pl-8 flex items-center gap-4 shadow-2xl border border-white/10 dark:border-white/5">
-            <span className="text-[14px] font-medium whitespace-nowrap hidden sm:block">
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${isDirty ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"}`}>
+          <div className="bg-[var(--bg-surface)] text-[var(--text-primary)] rounded-lg p-2 pl-6 sm:pl-8 flex items-center gap-4 border border-[var(--border-strong)] shadow-xl">
+            <span className="text-sm font-medium whitespace-nowrap hidden sm:block">
               You have unsaved changes
             </span>
-            <span className="text-[14px] font-medium whitespace-nowrap block sm:hidden">
+            <span className="text-sm font-medium whitespace-nowrap block sm:hidden">
               Unsaved
             </span>
             <div className="flex items-center gap-2">
               <button 
                 onClick={handleDiscard} 
                 disabled={saving} 
-                className="text-[13px] font-medium text-[var(--bg-base)]/70 hover:text-[var(--bg-base)] transition-colors px-3 py-2 disabled:opacity-50"
+                className="text-[13px] font-medium text-[var(--text-secondary)] opacity-60 hover:opacity-100 transition-opacity px-3 py-1.5 disabled:opacity-50"
               >
                 Discard
               </button>
               <button 
                 onClick={() => handleSave(formData, false)} 
-                disabled={saving || !formData.username || formData.username.length < 3 || usernameAvailable === false} 
-                className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-5 py-2.5 rounded-full text-[14px] font-semibold transition-all active:scale-95 flex items-center gap-2 shadow-[0_4px_12px_var(--accent-glow)] min-w-[120px] justify-center"
+                disabled={saving || !formData.username || formData.username.length < 3} 
+                className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5 justify-center"
               >
                 {saving ? (
                   <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
@@ -448,6 +446,7 @@ export default function ProfilePage() {
         )}
 
       </div>
+
     </div>
   );
 }

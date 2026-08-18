@@ -116,7 +116,6 @@ export default function OnboardingPage() {
           firebaseUid: user.uid,
           email: user.email,
           onboardingComplete: true,
-          username,
           displayName,
           username,
           avatarUrl,
@@ -215,16 +214,16 @@ export default function OnboardingPage() {
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-[520px] bg-[var(--bg-surface)] backdrop-blur-[40px] backdrop-saturate-[200%] border border-[var(--border)] rounded-[32px] p-8 sm:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] transition-transform duration-300">
+      <div className="relative z-10 w-full max-w-[500px] bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 sm:p-8 transition-transform duration-300">
 
         {/* Progress header (hidden on walkthrough step) */}
         {currentStep < 5 && (
-          <div className="flex flex-col items-center gap-4 mb-8">
-            <div className="flex items-center justify-center gap-3 w-full max-w-[200px]">
+          <div className="flex flex-col items-center gap-4 mb-6">
+            <div className="flex items-center justify-center gap-2 w-full max-w-[200px]">
               {[1, 2, 3, 4].map((step) => (
                 <div key={step} className="flex-1 h-1.5 rounded-full bg-[var(--border-strong)] overflow-hidden relative">
                   <div
-                    className="absolute inset-0 bg-[var(--accent)] transition-transform duration-500 origin-left"
+                    className="absolute inset-0 bg-[var(--accent)] transition-transform duration-300 origin-left"
                     style={{ transform: step <= currentStep ? 'scaleX(1)' : 'scaleX(0)' }}
                   />
                 </div>
@@ -236,34 +235,35 @@ export default function OnboardingPage() {
         {/* STEP 1: WELCOME */}
         {currentStep === 1 && (
           <div className="flex flex-col items-center text-center animate-slide-up">
-            <div className="w-20 h-20 bg-gradient-to-br from-[var(--accent)] to-purple-500 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-[var(--accent)]/20 rotate-3 hover:rotate-6 transition-transform">
-              <Sparkles className="w-10 h-10 text-white" />
+            <div className="w-14 h-14 bg-[var(--accent)] text-white rounded-lg flex items-center justify-center mb-4">
+              <Sparkles className="w-7 h-7" />
             </div>
 
-            <h2 className="text-3xl font-display font-extrabold tracking-tight mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] to-[var(--text-secondary)]">
+            <h2 className="text-[28px] font-semibold tracking-tight mb-2 text-[var(--text-primary)] leading-tight">
               Welcome to Nexus
             </h2>
-            <p className="text-[var(--text-secondary)] text-[15px] max-w-[320px] mb-8 leading-relaxed">
-              We're thrilled to have you, <span className="font-semibold text-[var(--text-primary)]">{displayName}</span>. Let's get your digital HQ set up perfectly.
+            <p className="text-sm text-[var(--text-secondary)] opacity-60 max-w-[340px] mb-6 leading-relaxed">
+              We're thrilled to have you, <span className="font-semibold text-[var(--text-primary)] opacity-100">{displayName}</span>. Let's get your digital HQ set up.
             </p>
 
-            <div className="w-full flex justify-center mb-10">
-              <div className="flex flex-wrap justify-center gap-2 max-w-[340px]">
-                <div className="flex items-center gap-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-full px-3 py-1.5 text-xs font-medium shadow-sm"><Zap className="w-3.5 h-3.5 text-yellow-500" /> Real-time sync</div>
-                <div className="flex items-center gap-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-full px-3 py-1.5 text-xs font-medium shadow-sm"><MessageSquare className="w-3.5 h-3.5 text-blue-500" /> Channels & DMs</div>
-                <div className="flex items-center gap-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-full px-3 py-1.5 text-xs font-medium shadow-sm"><ShieldCheck className="w-3.5 h-3.5 text-green-500" /> Secure workspaces</div>
+            <div className="w-full flex justify-center mb-8">
+              <div className="flex flex-wrap justify-center gap-2 max-w-[360px]">
+                <div className="flex items-center gap-1.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md px-3 py-1 text-xs font-medium"><Zap className="w-3.5 h-3.5 text-amber-500" /> Real-time sync</div>
+                <div className="flex items-center gap-1.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md px-3 py-1 text-xs font-medium"><MessageSquare className="w-3.5 h-3.5 text-blue-500" /> Channels & DMs</div>
+                <div className="flex items-center gap-1.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md px-3 py-1 text-xs font-medium"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Secure workspaces</div>
               </div>
             </div>
 
             <button
               onClick={() => setCurrentStep(2)}
-              className="group w-full py-3.5 bg-[var(--text-primary)] text-[var(--bg-base)] rounded-xl font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2 hover:shadow-xl"
+              className="w-full h-10 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               Let's go
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}
+
 
         {/* STEP 2: PROFILE */}
         {currentStep === 2 && (

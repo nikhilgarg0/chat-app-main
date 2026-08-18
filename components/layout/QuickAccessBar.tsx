@@ -36,24 +36,24 @@ export default function QuickAccessBar({
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-[var(--border)] bg-[var(--bg-glass)] px-4 backdrop-blur-xl transition-all">
+    <header className="sticky top-0 z-30 flex h-12 w-full items-center justify-between border-b border-[var(--border)] bg-[var(--bg-glass)] px-4 backdrop-blur-md transition-all">
       {/* Left: Mobile Sidebar Toggle + Brand Logo */}
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={toggleSidebar}
-          className="md:hidden text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="md:hidden text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg"
           aria-label="Toggle sidebar menu"
         >
-          {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
 
-        <Link href="/home" className="flex items-center gap-2 font-bold text-lg text-[var(--text-primary)] tracking-tight">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/20">
-            <Compass className="h-4 w-4" />
+        <Link href="/home" className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] tracking-tight">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--accent)] text-white">
+            <Compass className="h-3.5 w-3.5" />
           </div>
-          <span className="hidden sm:inline-block bg-gradient-to-r from-[var(--text-primary)] to-[var(--text-secondary)] bg-clip-text text-transparent">
+          <span className="hidden sm:inline-block font-semibold tracking-tight text-[15px]">
             NEXUS
           </span>
         </Link>
@@ -63,10 +63,10 @@ export default function QuickAccessBar({
       <div className="flex items-center gap-2">
         {/* Quick Create Workspace */}
         <Button
-          variant="glass"
-          size="sm"
+          variant="outline"
+          size="xs"
           onClick={onOpenCreateWorkspace}
-          className="hidden sm:inline-flex gap-1.5 text-xs font-medium"
+          className="hidden sm:inline-flex gap-1.5 text-[13px] font-medium rounded-lg"
         >
           <Building2 className="h-3.5 w-3.5 text-[var(--accent)]" />
           <span>New Workspace</span>
@@ -74,10 +74,10 @@ export default function QuickAccessBar({
 
         {/* Quick New Channel */}
         <Button
-          variant="secondary"
-          size="sm"
+          variant="outline"
+          size="xs"
           onClick={onOpenCreateChannel}
-          className="hidden md:inline-flex gap-1.5 text-xs font-medium"
+          className="hidden md:inline-flex gap-1.5 text-[13px] font-medium rounded-lg"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>New Channel</span>
@@ -86,9 +86,9 @@ export default function QuickAccessBar({
         {/* AI Assistant Direct Launch */}
         <Button
           variant="ai"
-          size="sm"
+          size="xs"
           onClick={onOpenAi}
-          className="gap-1.5 text-xs font-semibold"
+          className="gap-1.5 text-[13px] font-semibold rounded-lg"
         >
           <Sparkles className="h-3.5 w-3.5" />
           <span className="hidden xs:inline">Nexus AI</span>
@@ -96,30 +96,31 @@ export default function QuickAccessBar({
       </div>
 
       {/* Right Controls: Search, Theme Toggle, Profile */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         {/* Global Theme Switcher */}
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon-xs"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="text-[var(--text-secondary)] opacity-80 hover:opacity-100 rounded-lg"
           title="Toggle Dark/Light Mode"
         >
-          {theme === "dark" ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
+          {theme === "dark" ? <Sun className="h-3.5 w-3.5 text-amber-400" /> : <Moon className="h-3.5 w-3.5" />}
         </Button>
 
         {/* Profile Shortcut */}
         <Link href="/profile">
           <Button
-            variant="outline"
-            size="icon-sm"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            variant="ghost"
+            size="icon-xs"
+            className="text-[var(--text-secondary)] opacity-80 hover:opacity-100 rounded-lg"
             title="Profile & Settings"
           >
-            <User className="h-4 w-4" />
+            <User className="h-3.5 w-3.5" />
           </Button>
         </Link>
       </div>
     </header>
   );
 }
+
