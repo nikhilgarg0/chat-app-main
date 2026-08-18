@@ -1,5 +1,4 @@
-import { storage } from "./firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth } from "./firebase";
 
 export async function uploadAvatar(file: File, firebaseUid: string): Promise<string> {
   if (!file.type.startsWith("image/")) {
@@ -9,13 +8,25 @@ export async function uploadAvatar(file: File, firebaseUid: string): Promise<str
     throw new Error("Image must be smaller than 2MB.");
   }
 
-  const timestamp = Date.now();
-  const filename = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
-  const path = `avatars/${firebaseUid}/${timestamp}-${filename}`;
-  const storageRef = ref(storage, path);
+  const token = await auth.currentUser?.getIdToken();
+  if (!token) throw new Error("Not authenticated");
 
-  const snapshot = await uploadBytes(storageRef, file);
-  const url = await getDownloadURL(snapshot.ref);
-  
-  return url;
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/upload/avatar", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Failed to upload avatar");
+  }
+
+  const data = await res.json();
+  return data.url;
 }

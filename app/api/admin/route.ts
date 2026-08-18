@@ -6,6 +6,7 @@ import Message from "@/models/Message";
 import { User } from "@/models/User";
 import { JoinRequest } from "@/models/JoinRequest";
 import { verifyAdminToken } from "./login/route";
+import { deleteFirebaseUsers } from "@/lib/firebaseAdmin";
 
 // Helper: extract and verify admin token from Authorization header
 function getAdmin(req: Request): { email: string } | null {
@@ -84,8 +85,12 @@ export async function DELETE(req: Request) {
       results.workspaces = r.deletedCount;
     }
     if (target === "all" || target === "users") {
+      // Collect all firebaseUids before deleting MongoDB docs
+      const uids = await User.distinct("firebaseUid");
       const r = await User.deleteMany({});
       results.users = r.deletedCount;
+      // Delete from Firebase Auth
+      await deleteFirebaseUsers(uids);
     }
 
     return NextResponse.json({ success: true, deleted: results });

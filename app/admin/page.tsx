@@ -568,7 +568,7 @@ export default function AdminPage() {
     { key: "joinRequests", label: "Join Requests", desc: "Clear all pending/resolved join requests", icon: Bell },
     { key: "channels", label: "Channels", desc: "Delete all channels", icon: Hash },
     { key: "workspaces", label: "Workspaces", desc: "Delete all workspaces (channels & messages become orphaned)", icon: Layers },
-    { key: "users", label: "Users", desc: "Delete all user profiles from MongoDB (Firebase Auth untouched)", icon: Users },
+    { key: "users", label: "Users", desc: "Delete all user profiles from MongoDB and Firebase Auth", icon: Users },
     { key: "all", label: "EVERYTHING", desc: "Wipe the entire database — users, workspaces, channels, messages, requests", icon: Database },
   ];
 

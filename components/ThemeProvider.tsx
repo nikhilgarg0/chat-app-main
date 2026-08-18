@@ -32,7 +32,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    
+
+    // Immediately sync theme state from the DOM so the first render after
+    // mounting reflects the real visual state (avoids wrong logo/toggle flash).
+    const alreadyDark = document.documentElement.classList.contains("dark");
+    if (alreadyDark) {
+      setThemeState("dark");
+    }
+
     const unsub = auth.onAuthStateChanged(async (user) => {
       if (user) {
         try {

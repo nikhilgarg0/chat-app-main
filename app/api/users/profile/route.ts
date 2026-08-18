@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { 
-      firebaseUid, email, displayName, avatarUrl,
+      firebaseUid, email, username, displayName, avatarUrl,
       bio, customStatus, timezone, socialLinks, 
       notificationPrefs, theme, coverColor, onboardingComplete
     } = body;
@@ -26,6 +26,13 @@ export async function POST(req: Request) {
       email,
       displayName: typeof displayName === 'string' ? displayName.trim() : displayName,
     };
+
+    if (username && typeof username === 'string') {
+      const cleanUsername = username.trim().toLowerCase();
+      if (/^[a-zA-Z0-9_]{3,20}$/.test(cleanUsername)) {
+        updateData.username = cleanUsername;
+      }
+    }
 
     if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
     if (typeof bio === "string") updateData.bio = bio.trim().substring(0, 160);
@@ -70,6 +77,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, user });
   } catch (error: any) {
     console.error("Profile POST Error:", error);
+    if (error.code === 11000 && error.keyPattern?.username) {
+       return NextResponse.json(
+         { success: false, error: "Username is already taken." },
+         { status: 409 }
+       );
+    }
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },
       { status: 500 }

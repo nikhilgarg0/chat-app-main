@@ -18,15 +18,15 @@ export async function GET(req: Request) {
 
     await connectDB();
     const existing = await User.findOne({ username }).select("firebaseUid").lean();
-    
+
     // We check if it is taken, but if it is taken by the same user, it's fine!
+
     // Let's see if we have an auth context to allow them to keep their own username
     const authHeader = req.headers.get("Authorization");
     let currentUid = null;
     if (authHeader) {
       currentUid = await verifyToken(req);
     }
-    
     // If it exists and the UID is different, it's unavailable.
     if (existing && existing.firebaseUid !== currentUid) {
       return NextResponse.json({ available: false, error: "Username is already taken" });

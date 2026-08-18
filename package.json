@@ -14,11 +14,18 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.11.0",
+<<<<<<< HEAD
     "firebase-admin": "^13.7.0",
     "fix": "^0.0.6",
     "lucide-react": "^0.577.0",
     "mongoose": "^9.3.1",
     "next": "^16.2.0",
+=======
+    "firebase-admin": "^13.8.0",
+    "lucide-react": "^0.577.0",
+    "mongoose": "^9.3.1",
+    "next": "^16.2.4",
+>>>>>>> d5cc8968531a97e940072be6f77e24ccd26fef93
     "pusher": "^5.3.3",
     "pusher-js": "^8.4.3",
     "react": "19.2.4",

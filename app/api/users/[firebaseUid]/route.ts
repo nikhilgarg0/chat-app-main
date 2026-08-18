@@ -12,10 +12,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ firebase
 
     await connectDB();
     
-    // Select only public fields. Allow lookup by firebaseUid or displayName.
-    const user = await User.findOne({ 
-      $or: [{ firebaseUid }, { displayName: firebaseUid }] 
-    }).select(
+    // Select only public fields. Look up strictly by firebaseUid (unique).
+    const user = await User.findOne({ firebaseUid }).select(
       "displayName avatarUrl bio customStatus timezone socialLinks coverColor -_id"
     );
 
