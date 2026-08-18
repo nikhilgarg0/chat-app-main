@@ -2,14 +2,14 @@
 
 import { authFetch } from "@/lib/authFetch";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { getErrorMessage } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Trash2, X } from "lucide-react";
+import { Copy, Check, Trash2, Plus, Sparkles, Building2, User } from "lucide-react";
 import { useSidebar } from "@/components/SidebarContext";
 import PageLoader from "@/components/ui/PageLoader";
-import { WorkspacesGridSkeleton } from "@/components/ui/Skeletons";
+import GuidedUserFlow from "@/components/ui/GuidedUserFlow";
 
 function InviteCodeReveal({ code }: { code: string }) {
   const [status, setStatus] = useState<"hidden" | "revealed" | "copied">("hidden");
@@ -66,12 +66,9 @@ function DeleteConfirmDialog({ workspaceName, onConfirm, onCancel }: { workspace
           <Button variant="ghost" onClick={onCancel} className="text-sm h-9 px-4">
             Cancel
           </Button>
-          <button
-            onClick={onConfirm}
-            className="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-all active:scale-[0.98]"
-          >
+          <Button variant="danger" onClick={onConfirm} className="text-sm h-9 px-4">
             Delete Workspace
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -80,6 +77,7 @@ function DeleteConfirmDialog({ workspaceName, onConfirm, onCancel }: { workspace
 
 export default function HomePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toggleSidebar } = useSidebar();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [workspaces, setWorkspaces] = useState<any[]>([]);
@@ -100,6 +98,12 @@ export default function HomePage() {
   const [showJoinForm, setShowJoinForm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("action") === "create-workspace") {
+      setShowCreateForm(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (user) => {
@@ -184,7 +188,6 @@ export default function HomePage() {
       const data = await res.json();
 
       if (data.alreadyMember) {
-        // Already a member — navigate directly
         router.push(`/workspace/${data.workspace._id}`);
         return;
       }
@@ -236,29 +239,50 @@ export default function HomePage() {
   const currentUid = auth.currentUser?.uid;
 
   return (
-    <main className="flex flex-1 flex-col bg-[var(--bg-base)] text-[var(--text-primary)] font-body">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 lg:px-6 py-3 lg:py-4 border-b border-[var(--border)] bg-[var(--bg-glass)] backdrop-blur-[20px] backdrop-saturate-[180%] z-20 shrink-0 sticky top-0">
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={toggleSidebar}
-            className="md:hidden p-1 -ml-1 mr-1 rounded-md hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors sidebar-toggle"
-            title="Open Sidebar"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-          </button>
-          <span className="text-[var(--text-primary)] font-display font-semibold text-base lg:text-lg tracking-tight">Workspaces</span>
-        </div>
-      </div>
-
+    <main className="flex flex-1 flex-col bg-[var(--bg-base)] text-[var(--text-primary)]">
       {/* Main Content */}
-      <div className="flex flex-col items-center w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-12 animate-slide-up overflow-y-auto flex-1">
-        <div className="w-full mb-10">
-          <h1 className="text-3xl font-bold font-display tracking-tight text-[var(--text-primary)]">
-            Your Workspaces
-          </h1>
-          <p className="text-[var(--text-secondary)] mt-1">Select a workspace or create a new one to get started.</p>
+      <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 animate-slide-up overflow-y-auto flex-1">
+        {/* Guided User Flow Banner */}
+        <GuidedUserFlow
+          userProfile={userProfile}
+          workspacesCount={workspaces.length}
+          hasChannels={workspaces.some((w) => w.channels?.length > 0)}
+        />
+
+        {/* Hero Title & Actions */}
+        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
+              Your Workspaces
+            </h1>
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5">
+              Select a workspace or create a new team hub to start chatting.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button
+              variant="gradient"
+              size="sm"
+              onClick={() => { setShowCreateForm(true); setShowJoinForm(false); }}
+              className="flex-1 sm:flex-initial gap-1.5"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Create Workspace</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setShowJoinForm(true); setShowCreateForm(false); }}
+              className="flex-1 sm:flex-initial gap-1.5"
+            >
+              <Building2 className="h-4 w-4" />
+              <span>Join with Code</span>
+            </Button>
+          </div>
         </div>
+
 
         {workspaces.length === 0 ? (
           <div className="w-full flex flex-col items-center justify-center py-16 px-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl shadow-sm mb-8 text-center animate-slide-up">

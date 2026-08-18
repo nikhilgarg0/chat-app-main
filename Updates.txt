@@ -1,11 +1,10 @@
 1. notification.
 2. Create channel button on browse channels page.
 3. Media attachment.
-4. Profile picture consistency.
-5. DM
-6. Connections to people.
-7. /Ask does not show the user query, it should show what users asked.
-8. @mentions.
-9. Remove forwarding.
-10. Profile saving has a bug.
-11. Profile picture update and avatars.
+4. DM
+5. Connections to people.
+6. /Ask does not show the user query, it should show what users asked.
+7. @mentions.
+8. Remove forwarding.
+9. Profile saving has a bug.
+10. Profile picture update and avatars.

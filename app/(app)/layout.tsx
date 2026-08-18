@@ -7,6 +7,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { authFetch } from "@/lib/authFetch";
 
 import AppSidebar from "@/components/layout/AppSidebar";
+import QuickAccessBar from "@/components/layout/QuickAccessBar";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import PageLoader from "@/components/ui/PageLoader";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -50,12 +52,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (loading) return <PageLoader />;
 
+  const isOnboarding = pathname === "/onboarding";
+
   return (
-    <div className="flex h-[100dvh] overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)] font-body selection:bg-[var(--accent)]/30">
+    <div className="flex h-[100dvh] overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)] selection:bg-[var(--accent)]/30">
       <AppSidebar />
-      <div className="flex-1 flex flex-col min-w-0 h-[100dvh] relative overflow-y-auto">
-        {children}
+      <div className="flex-1 flex flex-col min-w-0 h-[100dvh] relative overflow-hidden">
+        {!isOnboarding && (
+          <QuickAccessBar
+            onOpenCreateWorkspace={() => router.push("/home?action=create-workspace")}
+            onOpenCreateChannel={() => router.push("/home?action=create-channel")}
+            onOpenAi={() => router.push("/home?openAi=true")}
+          />
+        )}
+        <main className={`flex-1 overflow-y-auto ${!isOnboarding ? "pb-16 md:pb-0" : ""}`}>
+          {children}
+        </main>
+        {!isOnboarding && <MobileBottomNav />}
       </div>
     </div>
   );
 }
+

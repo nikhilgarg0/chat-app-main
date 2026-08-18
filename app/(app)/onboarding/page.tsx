@@ -18,6 +18,8 @@ export default function OnboardingPage() {
   const [toast, setToast] = useState<string | null>(null);
 
   const [displayName, setDisplayName] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [bio, setBio] = useState("");
   const [customStatus, setCustomStatus] = useState("");
@@ -89,6 +91,7 @@ export default function OnboardingPage() {
           email: user.email,
           onboardingComplete: true,
           displayName,
+          username,
           avatarUrl,
           bio,
           customStatus,
