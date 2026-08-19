@@ -190,29 +190,9 @@ export default function OnboardingPage() {
 
   if (loading) return <PageLoader />;
 
-  // Dynamic gradient blobs depending on the step
-  const blobColors = [
-    "bg-blue-500/10",    // Step 1
-    "bg-purple-500/10",  // Step 2
-    "bg-green-500/10",   // Step 3
-    "bg-orange-500/10",  // Step 4
-    "bg-transparent"     // Step 5 (walkthrough uses own backdrop)
-  ];
-
   return (
     <div className="relative min-h-[100dvh] flex flex-col items-center justify-center bg-[var(--bg-base)] text-[var(--text-primary)] px-4 font-body transition-opacity duration-300 overflow-hidden">
 
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className={`absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full blur-3xl mix-blend-multiply opacity-50 dark:opacity-20 animate-pulse transition-colors duration-1000 ${blobColors[currentStep - 1]}`}
-          style={{ animationDuration: '8s' }}
-        />
-        <div
-          className={`absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full blur-3xl mix-blend-multiply opacity-50 dark:opacity-20 animate-pulse transition-colors duration-1000 ${blobColors[(currentStep % 4)]}`}
-          style={{ animationDuration: '12s' }}
-        />
-      </div>
 
       <div className="relative z-10 w-full max-w-[500px] bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 sm:p-8 transition-transform duration-300">
 

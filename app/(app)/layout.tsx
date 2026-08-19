@@ -9,7 +9,7 @@ import { authFetch } from "@/lib/authFetch";
 import AppSidebar from "@/components/layout/AppSidebar";
 import QuickAccessBar from "@/components/layout/QuickAccessBar";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
-import PageLoader from "@/components/ui/PageLoader";
+import SplashScreen from "@/components/ui/SplashScreen";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     };
   }, [router, pathname]);
 
-  if (loading) return <PageLoader />;
+  if (loading) return <SplashScreen minDurationMs={1000} onFinish={() => {}} />;
+
 
   const isOnboarding = pathname === "/onboarding";
 

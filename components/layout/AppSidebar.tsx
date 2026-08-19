@@ -11,8 +11,11 @@ import { authFetch } from "@/lib/authFetch";
 import { useTheme } from "@/components/ThemeProvider";
 import { useSidebar } from "@/components/SidebarContext";
 import UserAvatar from "@/components/ui/UserAvatar";
+import BrandLogo from "@/components/ui/BrandLogo";
+import { Sun, Moon, Check, X } from "lucide-react";
 
 export default function AppSidebar() {
+
   const { workspaceId, channelId } = useParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -89,13 +92,44 @@ export default function AppSidebar() {
   useEffect(() => {
     if (!userProfile?.displayName || !workspaceId || typeof workspaceId !== "string") return;
     const uname = userProfile.displayName;
+    const uid = auth.currentUser?.uid || "";
 
-    authFetch("/api/pusher/presence", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ workspaceId, username: uname, status: "online" })
-    }).catch(() => { });
+    // 1. Fetch initial list of online users in this workspace
+    authFetch(`/api/pusher/presence?workspaceId=${workspaceId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.onlineUsers)) {
+          setOnlineUsers((prev) => {
+            const next = new Map(prev);
+            data.onlineUsers.forEach((u: any) => {
+              if (u.username) next.set(u.username, u.firebaseUid);
+            });
+            // Ensure self is included
+            next.set(uname, uid);
+            return next;
+          });
+        }
+      })
+      .catch(() => {});
 
+    // 2. Send heartbeat function
+    const sendHeartbeat = (status = "online") => {
+      authFetch("/api/pusher/presence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspaceId, username: uname, status, firebaseUid: uid })
+      }).catch(() => {});
+    };
+
+    // Initial heartbeat
+    sendHeartbeat("online");
+
+    // Periodic heartbeat every 12 seconds
+    const heartbeatInterval = setInterval(() => {
+      sendHeartbeat("online");
+    }, 12000);
+
+    // 3. Subscribe to Pusher workspace events
     const presenceChannel = `workspace-${workspaceId}`;
     const channel = pusherClient.subscribe(presenceChannel);
 
@@ -128,16 +162,21 @@ export default function AppSidebar() {
       });
     });
 
-    return () => {
-      authFetch("/api/pusher/presence", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workspaceId, username: uname, status: "offline" })
-      }).catch(() => { });
-      channel.unbind_all();
-      channel.unsubscribe();
+    const handleBeforeUnload = () => {
+      sendHeartbeat("offline");
     };
-  }, [userProfile?.displayName, workspaceId]);
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      sendHeartbeat("offline");
+      pusherClient.unsubscribe(presenceChannel);
+    };
+  }, [workspaceId, userProfile?.displayName]);
+
+
 
   const handleLogout = async () => {
     try {
@@ -205,22 +244,8 @@ export default function AppSidebar() {
 
           {/* ── HEADER ─────────────────────────────────────── */}
           <div className="px-4 py-3.5 flex items-center justify-between border-b border-[var(--border)] shrink-0">
-            <Link href="/home" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
-              <Image
-                src={isDark ? "/logos/Logo_White.png" : "/logos/Logo_Black.png"}
-                alt="Nexus"
-                width={24}
-                height={24}
-                className="object-contain shrink-0"
-              />
-              <Image
-                src={isDark ? "/logos/Wordmark_White.png" : "/logos/Wordmark_Black.png"}
-                alt="Nexus"
-                width={72}
-                height={20}
-                className="object-contain"
-              />
-            </Link>
+            <BrandLogo size="md" href="/home" />
+
 
             {/* Collapse button (desktop) */}
             <button
@@ -336,12 +361,16 @@ export default function AppSidebar() {
                           disabled={!newChannelName.trim() || isCreatingChannel}
                           className="w-5 h-5 flex items-center justify-center rounded text-[var(--accent)] hover:bg-[var(--accent)]/10 disabled:opacity-30 transition-all text-xs font-bold"
                           title="Create"
-                        >✓</button>
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
                         <button
                           onClick={() => { setShowChannelInput(false); setNewChannelName(""); }}
                           className="w-5 h-5 flex items-center justify-center rounded text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-all text-xs"
                           title="Cancel"
-                        >✕</button>
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -448,9 +477,10 @@ export default function AppSidebar() {
                 {/* Theme toggle row */}
                 <div className="flex items-center justify-between px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-base">{isDark ? "🌙" : "☀️"}</span>
+                    {isDark ? <Moon className="w-4 h-4 text-[var(--accent)]" /> : <Sun className="w-4 h-4 text-amber-500" />}
                     <span className="text-[13px] text-[var(--text-primary)]">{isDark ? "Dark mode" : "Light mode"}</span>
                   </div>
+
                   <button
                     onClick={() => setTheme(isDark ? "light" : "dark")}
                     title={isDark ? "Switch to light mode" : "Switch to dark mode"}

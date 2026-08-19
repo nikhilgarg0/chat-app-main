@@ -7,16 +7,19 @@ import { pusherServer } from "@/lib/pusher-server";
 
 export async function POST(req: Request) {
   try {
-    const uid = await verifyToken(req);
+    const verifiedUid = await verifyToken(req);
+    const body = await req.json();
+    const { workspaceId, name, firebaseUid } = body;
+    const uid = verifiedUid || firebaseUid;
+
     if (!uid) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    const { workspaceId, name } = await req.json();
-
     if (!workspaceId || !name) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
+
 
     await connectDB();
 

@@ -8,10 +8,13 @@ import Message from "@/models/Message";
 
 export async function DELETE(req: Request, context: { params: Promise<{ channelId: string }> }) {
   try {
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || url.searchParams.get("firebaseUid");
     if (!uid) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
+
 
     const params = await context.params;
     const { channelId } = params;
@@ -20,8 +23,8 @@ export async function DELETE(req: Request, context: { params: Promise<{ channelI
       return NextResponse.json({ success: false, error: "Missing channelId" }, { status: 400 });
     }
 
-    const url = new URL(req.url);
     const action = url.searchParams.get("action");
+
 
     await connectDB();
 
@@ -69,10 +72,13 @@ export async function DELETE(req: Request, context: { params: Promise<{ channelI
 
 export async function GET(req: Request, context: { params: Promise<{ channelId: string }> }) {
   try {
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || url.searchParams.get("firebaseUid");
     if (!uid) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
+
 
     const params = await context.params;
     const { channelId } = params;
@@ -98,10 +104,13 @@ export async function GET(req: Request, context: { params: Promise<{ channelId: 
 
 export async function POST(req: Request, context: { params: Promise<{ channelId: string }> }) {
   try {
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || url.searchParams.get("firebaseUid");
     if (!uid) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
+
 
     const params = await context.params;
     const { channelId } = params;

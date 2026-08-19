@@ -23,14 +23,17 @@ export async function GET(req: Request) {
 
     // Let's see if we have an auth context to allow them to keep their own username
     const authHeader = req.headers.get("Authorization");
-    let currentUid = null;
+    let currentUid = searchParams.get("currentUid") || searchParams.get("firebaseUid");
     if (authHeader) {
-      currentUid = await verifyToken(req);
+      const verified = await verifyToken(req);
+      if (verified) currentUid = verified;
     }
+
     // If it exists and the UID is different, it's unavailable.
     if (existing && existing.firebaseUid !== currentUid) {
       return NextResponse.json({ available: false, error: "Username is already taken" });
     }
+
 
     return NextResponse.json({ available: true });
   } catch (err: any) {

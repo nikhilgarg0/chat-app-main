@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ChevronRight, ChevronLeft, Layers, Hash, User, Home, Check } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, Layers, Hash, User, Home, Check, Lightbulb } from "lucide-react";
 
 type Step = {
   icon: React.ReactNode;
-  emoji: string;
   title: string;
   description: string;
   tip: string;
@@ -15,8 +14,7 @@ type Step = {
 
 const STEPS: Step[] = [
   {
-    icon: <Home className="w-6 h-6" />,
-    emoji: "🏠",
+    icon: <Home className="w-8 h-8" />,
     title: "Your Home Dashboard",
     description:
       "This is your home base. From here you can see all the workspaces you belong to and create new ones.",
@@ -25,8 +23,7 @@ const STEPS: Step[] = [
     accentColor: "bg-blue-500/15 text-blue-400",
   },
   {
-    icon: <Layers className="w-6 h-6" />,
-    emoji: "🏢",
+    icon: <Layers className="w-8 h-8" />,
     title: "Workspaces",
     description:
       "Workspaces are where teams live. Create one for your company, project, or group — or join an existing one with an invite code.",
@@ -35,8 +32,7 @@ const STEPS: Step[] = [
     accentColor: "bg-purple-500/15 text-purple-400",
   },
   {
-    icon: <Hash className="w-6 h-6" />,
-    emoji: "#",
+    icon: <Hash className="w-8 h-8" />,
     title: "Channels",
     description:
       "Inside each workspace you'll find channels — dedicated spaces for topics, projects or teams. Click the + in the sidebar to create one.",
@@ -45,8 +41,7 @@ const STEPS: Step[] = [
     accentColor: "bg-green-500/15 text-green-400",
   },
   {
-    icon: <User className="w-6 h-6" />,
-    emoji: "✨",
+    icon: <User className="w-8 h-8" />,
     title: "Your Profile",
     description:
       "Personalise your avatar, bio, social links, timezone and status. Click your name at the bottom-left of the sidebar anytime.",
@@ -131,14 +126,14 @@ export default function WalkthroughOverlay({ onDone }: Props) {
             <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
             <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-white/5 blur-xl" />
 
-            {/* Big emoji step indicator */}
+            {/* Big icon step indicator */}
             <div
               key={`emoji-${animKey}`}
               className="relative flex flex-col items-center gap-3"
               style={{ animation: "stepSlideIn 0.35s ease forwards" }}
             >
-              <div className={`w-20 h-20 rounded-2xl ${current.accentColor} border border-white/10 flex items-center justify-center text-4xl shadow-xl`}>
-                {current.emoji}
+              <div className={`w-20 h-20 rounded-2xl ${current.accentColor} border border-white/10 flex items-center justify-center shadow-xl`}>
+                {current.icon}
               </div>
               <div className="flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-full px-4 py-1.5">
                 {STEPS.map((_, i) => (
@@ -178,12 +173,13 @@ export default function WalkthroughOverlay({ onDone }: Props) {
 
               {/* Tip pill */}
               <div className="flex items-start gap-2.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-3">
-                <span className="text-base shrink-0 mt-0.5">💡</span>
+                <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-[var(--text-secondary)] leading-snug">
                   {current.tip}
                 </p>
               </div>
             </div>
+
 
             {/* Navigation */}
             <div className="flex items-center justify-between mt-5">

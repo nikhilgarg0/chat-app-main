@@ -173,17 +173,66 @@ export default function WorkspacePage() {
             )}
 
             <p className="text-[var(--text-secondary)] max-w-sm text-[15px] leading-relaxed mb-6 mx-auto">
-              This is your central hub for secure team communication.
+              Select a channel below to jump into the conversation.
             </p>
-
-            <button
-              onClick={() => router.push(`/workspace/${workspaceId}/browse`)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-medium transition-all shadow-apple active:scale-[0.98] mx-auto"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-              Browse Channels
-            </button>
           </div>
+
+          {/* Direct Channels List Section */}
+          <div className="w-full max-w-3xl mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Hash className="w-5 h-5 text-[var(--accent)]" />
+                <h2 className="text-[18px] font-semibold text-[var(--text-primary)] tracking-tight">
+                  Workspace Channels
+                </h2>
+                <span className="px-2.5 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-xs font-mono border border-[var(--border)]">
+                  {workspace?.channels?.length || 0}
+                </span>
+              </div>
+
+              <button
+                onClick={() => router.push(`/workspace/${workspaceId}/browse`)}
+                className="text-xs font-medium text-[var(--accent)] hover:underline cursor-pointer"
+              >
+                Browse all →
+              </button>
+            </div>
+
+            {workspace?.channels && workspace.channels.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {workspace.channels.map((ch: any) => (
+                  <div
+                    key={ch._id}
+                    onClick={() => router.push(`/workspace/${workspaceId}/channel/${ch._id}`)}
+                    className="group flex items-center justify-between p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--border-strong)] hover:shadow-apple transition-all duration-200 apple-press cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--accent)] shrink-0 font-mono font-bold">
+                        #
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">
+                          {ch.name}
+                        </h3>
+                        <p className="text-xs text-[var(--text-secondary)] opacity-60 truncate mt-0.5">
+                          {ch.topic || "Topic channel for discussion"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button className="text-xs font-semibold text-[var(--accent)] px-3 py-1.5 rounded-lg bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 transition-colors shrink-0 ml-2">
+                      Open
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 rounded-2xl border border-dashed border-[var(--border)] text-center text-xs text-[var(--text-tertiary)]">
+                No channels created yet. Create one from the sidebar!
+              </div>
+            )}
+          </div>
+
 
           {/* Join Requests Section (Owner Only) */}
           {isOwner && joinRequests.length > 0 && (

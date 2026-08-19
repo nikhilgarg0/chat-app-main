@@ -5,13 +5,36 @@ import { useRouter } from "next/navigation";
 import { authFetch } from "@/lib/authFetch";
 import { auth } from "@/lib/firebase";
 import AvatarUpload from "@/components/ui/AvatarUpload";
-import { Twitter, Github, Linkedin, Globe, ArrowLeft, CheckCircle2, AlertCircle, Copy, PaintBucket, Bell, Monitor, User as UserIcon } from "lucide-react";
+import { 
+  Twitter, 
+  Github, 
+  Linkedin, 
+  Globe, 
+  ArrowLeft, 
+  CheckCircle2, 
+  AlertCircle, 
+  Copy, 
+  PaintBucket, 
+  Bell, 
+  Monitor, 
+  User as UserIcon, 
+  MessageSquare,
+  XCircle,
+  Loader2,
+  Share2,
+  Download,
+  ShieldCheck
+} from "lucide-react";
+
+import { useTheme } from "@/components/ThemeProvider";
 import Toast from "@/components/ui/Toast";
 import { ProfileSkeleton } from "@/components/ui/Skeletons";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { setTheme: setGlobalTheme } = useTheme();
   const [loading, setLoading] = useState(true);
+
   const [saving, setSaving] = useState(false);
   const [errorVisible, setErrorVisible] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -19,17 +42,20 @@ export default function ProfilePage() {
   const [originalData, setOriginalData] = useState<any>(null);
   const [formData, setFormData] = useState<any>({
     displayName: "",
+    username: "",
     email: "",
     bio: "",
     customStatus: "",
     timezone: "UTC",
-    coverColor: "#0a84ff",
+    coverColor: "#2563eb",
     socialLinks: { twitter: "", github: "", linkedin: "", website: "" },
     notificationPrefs: { mentions: true, allMessages: false, sounds: true },
     theme: "system",
     avatarUrl: "",
   });
 
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
@@ -43,12 +69,13 @@ export default function ProfilePage() {
               ...data.user,
               socialLinks: data.user.socialLinks || { twitter: "", github: "", linkedin: "", website: "" },
               notificationPrefs: data.user.notificationPrefs || { mentions: true, allMessages: false, sounds: true },
-              coverColor: data.user.coverColor || "#0a84ff",
+              coverColor: data.user.coverColor || "#2563eb",
               theme: data.user.theme || "system",
               bio: data.user.bio || "",
               customStatus: data.user.customStatus || "",
               timezone: data.user.timezone || "UTC",
-              avatarUrl: data.user.avatarUrl || ""
+              avatarUrl: data.user.avatarUrl || "",
+              username: data.user.username || ""
             };
             setOriginalData(loaded);
             setFormData(loaded);
@@ -64,6 +91,36 @@ export default function ProfilePage() {
     });
     return unsub;
   }, [router]);
+
+  // Real-time username availability validation
+  useEffect(() => {
+    if (!formData.username || formData.username.length < 3) {
+      setUsernameAvailable(null);
+      return;
+    }
+
+    if (originalData?.username && formData.username === originalData.username) {
+      setUsernameAvailable(true);
+      return;
+    }
+
+    setCheckingUsername(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await authFetch(
+          `/api/users/check-username?username=${encodeURIComponent(formData.username)}&currentUid=${auth.currentUser?.uid}`
+        );
+        const data = await res.json();
+        setUsernameAvailable(data.available === true);
+      } catch {
+        setUsernameAvailable(null);
+      } finally {
+        setCheckingUsername(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [formData.username, originalData?.username]);
 
   const handleChange = (field: string, value: any) => {
     setFormData((prev: any) => {
@@ -123,21 +180,38 @@ export default function ProfilePage() {
   const copyUserId = () => {
     if (auth.currentUser?.uid) {
       navigator.clipboard.writeText(auth.currentUser.uid);
-      setToastMessage("User ID copied");
+      setToastMessage("User ID copied to clipboard");
     }
+  };
+
+  const copyProfileLink = () => {
+    const handle = formData.username || auth.currentUser?.uid;
+    if (handle) {
+      const url = `${window.location.origin}/user/${handle}`;
+      navigator.clipboard.writeText(url);
+      setToastMessage("Profile link copied to clipboard");
+    }
+  };
+
+  const exportUserData = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(formData, null, 2));
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `nexus-profile-${formData.username || "data"}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    setToastMessage("Profile data exported successfully");
   };
 
   if (loading) return <ProfileSkeleton />;
 
+  const statusPresets = ["Working Remotely", "In a Meeting", "Focus Mode", "Out of Office"];
+  const colorPresets = ["#2563eb", "#1e293b", "#334155", "#0f172a", "#059669"];
+
   return (
     <div className="flex flex-col flex-1 relative bg-[var(--bg-base)] overflow-y-auto overflow-x-hidden pb-40">
       
-      {/* GLOWING BACKGROUND (Ambient) */}
-      <div 
-        className="absolute top-[-20%] left-[-10%] w-[120%] h-[60vh] opacity-30 dark:opacity-20 blur-[100px] pointer-events-none transition-colors duration-1000"
-        style={{ background: `radial-gradient(ellipse at center, ${formData.coverColor} 0%, transparent 70%)` }}
-      />
-
       {/* STICKY GLASS HEADER */}
       <div className="sticky top-0 z-50 px-4 py-3 bg-[var(--bg-glass)] backdrop-blur-md border-b border-[var(--border)] flex items-center justify-between">
         <button 
@@ -158,28 +232,34 @@ export default function ProfilePage() {
           
           {/* Cover Banner */}
           <div 
-            className="w-full h-28 sm:h-40 relative transition-colors duration-500 overflow-hidden"
+            className="w-full h-28 sm:h-36 relative transition-colors duration-300 overflow-hidden"
             style={{ backgroundColor: formData.coverColor }}
           >
-            <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-            
-            <label 
-              className="absolute top-4 right-4 bg-black/40 text-white p-2 rounded-lg cursor-pointer transition-all flex items-center justify-center border border-white/20 hover:bg-black/60"
-              title="Change cover color"
-            >
-              <PaintBucket className="w-4 h-4" />
-              <input 
-                type="color" 
-                value={formData.coverColor} 
-                onChange={(e) => handleChange("coverColor", e.target.value)} 
-                className="opacity-0 w-0 h-0 absolute"
-              />
-            </label>
+            <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/40 p-1.5 rounded-lg border border-white/20">
+              {colorPresets.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => handleChange("coverColor", c)}
+                  className={`w-4 h-4 rounded-full border transition-transform ${formData.coverColor === c ? "scale-125 border-white" : "border-transparent opacity-80"}`}
+                  style={{ backgroundColor: c }}
+                  title={`Color ${c}`}
+                />
+              ))}
+              <label className="cursor-pointer text-white ml-1 hover:opacity-80" title="Custom color">
+                <PaintBucket className="w-3.5 h-3.5" />
+                <input 
+                  type="color" 
+                  value={formData.coverColor} 
+                  onChange={(e) => handleChange("coverColor", e.target.value)} 
+                  className="opacity-0 w-0 h-0 absolute"
+                />
+              </label>
+            </div>
           </div>
 
           <div className="px-6 pb-6 sm:px-8 flex flex-col sm:flex-row gap-6 relative">
             {/* Avatar overlaps banner */}
-            <div className="-mt-12 sm:-mt-16 relative z-10 p-1.5 bg-[var(--bg-surface)] rounded-full border border-[var(--border)] shadow-md inline-block">
+            <div className="-mt-12 sm:-mt-14 relative z-10 p-1.5 bg-[var(--bg-surface)] rounded-full border border-[var(--border)] shadow-md inline-block">
               <AvatarUpload 
                 currentAvatarUrl={formData.avatarUrl}
                 displayName={formData.displayName}
@@ -191,36 +271,68 @@ export default function ProfilePage() {
             <div className="flex-1 mt-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-[28px] font-semibold text-[var(--text-primary)] tracking-tight leading-tight">
-                    {formData.displayName || "Unknown User"}
-                  </h1>
-                  <div className="flex items-center gap-2 mt-1">
-                    <p className="text-sm text-[var(--text-secondary)] opacity-60">{formData.email}</p>
-                    <span className="w-1 h-1 bg-[var(--border-strong)] rounded-full" />
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-[28px] font-semibold text-[var(--text-primary)] tracking-tight leading-tight">
+                      {formData.displayName || "Unknown User"}
+                    </h1>
+                    <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                      <ShieldCheck className="w-3 h-3" />
+                      Verified
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-[var(--text-secondary)] opacity-60">
+                    <span className="font-mono">@{formData.username || "no_username"}</span>
+                    <span>•</span>
+                    <span>{formData.email}</span>
+                    <span>•</span>
                     <button 
                       onClick={copyUserId} 
-                      className="flex items-center gap-1 text-xs text-[var(--text-secondary)] opacity-60 hover:opacity-100 transition-opacity py-0.5 px-2 rounded-md hover:bg-[var(--bg-elevated)]" 
-                      title="Copy User ID"
+                      className="hover:opacity-100 transition-opacity flex items-center gap-1 py-0.5 px-1.5 rounded hover:bg-[var(--bg-elevated)]" 
+                      title="Copy raw UID"
                     >
-                      <Copy className="w-3.5 h-3.5" />
-                      ID
+                      <Copy className="w-3 h-3" />
+                      Copy ID
+                    </button>
+                    <button 
+                      onClick={copyProfileLink} 
+                      className="hover:opacity-100 transition-opacity flex items-center gap-1 py-0.5 px-1.5 rounded hover:bg-[var(--bg-elevated)]" 
+                      title="Copy shareable link"
+                    >
+                      <Share2 className="w-3 h-3" />
+                      Share Profile
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Status Input */}
-              <div className="mt-4 relative w-full max-w-md">
-                <input
-                  type="text"
-                  placeholder="What's your status right now?"
-                  className="w-full pl-9 pr-4 py-2 bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-lg border border-[var(--border)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)] text-sm"
-                  value={formData.customStatus}
-                  onChange={(e) => handleChange("customStatus", e.target.value)}
-                  maxLength={80}
-                />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm">💭</span>
+              {/* Status Input with Quick Presets */}
+              <div className="mt-4 space-y-2">
+                <div className="relative w-full max-w-md">
+                  <input
+                    type="text"
+                    placeholder="What's your status right now?"
+                    className="w-full pl-9 pr-4 py-2 bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-lg border border-[var(--border)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)] text-sm"
+                    value={formData.customStatus}
+                    onChange={(e) => handleChange("customStatus", e.target.value)}
+                    maxLength={80}
+                  />
+                  <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs text-[var(--text-secondary)] opacity-60">Presets:</span>
+                  {statusPresets.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => handleChange("customStatus", preset)}
+                      className="text-xs px-2.5 py-0.5 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -247,13 +359,34 @@ export default function ProfilePage() {
               </div>
               
               <div className="space-y-4">
+                {/* Username Field with Live Validation */}
                 <div>
-                  <label className="block text-[13px] font-medium text-[var(--text-secondary)] mb-1.5">Username</label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className="block text-[13px] font-medium text-[var(--text-secondary)]">
+                      Unique Handle (@username)
+                    </label>
+                    {checkingUsername ? (
+                      <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" /> Checking...
+                      </span>
+                    ) : usernameAvailable === true ? (
+                      <span className="text-xs text-emerald-500 flex items-center gap-1 font-medium">
+                        <CheckCircle2 className="w-3 h-3" /> Available
+                      </span>
+                    ) : usernameAvailable === false ? (
+                      <span className="text-xs text-red-500 flex items-center gap-1 font-medium">
+                        <XCircle className="w-3 h-3" /> Taken
+                      </span>
+                    ) : null}
+                  </div>
+
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] font-mono">@</span>
                     <input 
                       type="text" 
-                      className="w-full pl-8 pr-4 py-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] text-sm focus:border-[var(--accent)] outline-none transition-all" 
+                      className={`w-full pl-8 pr-4 py-2 bg-[var(--bg-elevated)] border rounded-lg text-[var(--text-primary)] text-sm outline-none transition-all ${
+                        usernameAvailable === false ? "border-red-500" : usernameAvailable === true ? "border-emerald-500/50" : "border-[var(--border)] focus:border-[var(--accent)]"
+                      }`} 
                       value={formData.username || ""}
                       onChange={(e) => {
                         const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -262,7 +395,9 @@ export default function ProfilePage() {
                       maxLength={20}
                     />
                   </div>
-                  {formData.username && formData.username.length < 3 && <p className="text-xs text-red-500 mt-1">Must be at least 3 characters</p>}
+                  <p className="text-xs text-[var(--text-secondary)] opacity-60 mt-1">
+                    Every user has a unique username used for direct links and mentions.
+                  </p>
                 </div>
 
                 <div>
@@ -341,7 +476,7 @@ export default function ProfilePage() {
 
           </div>
 
-          {/* RIGHT COLUMN: Settings */}
+          {/* RIGHT COLUMN: Settings & Actions */}
           <div className="space-y-6">
             
             {/* Preferences */}
@@ -357,7 +492,12 @@ export default function ProfilePage() {
                   {['light', 'dark', 'system'].map((t) => (
                     <button
                       key={t}
-                      onClick={() => handleChange("theme", t)}
+                      type="button"
+                      onClick={() => {
+                        handleChange("theme", t);
+                        setGlobalTheme(t as "light" | "dark" | "system");
+                      }}
+
                       className={`flex-1 py-1.5 text-[13px] capitalize font-medium rounded-md transition-all ${
                         formData.theme === t 
                         ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border)]' 
@@ -402,6 +542,23 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Account Management & Export */}
+            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 space-y-3">
+              <h2 className="text-[18px] font-semibold text-[var(--text-primary)] tracking-tight">Account Tools</h2>
+              <p className="text-xs text-[var(--text-secondary)] opacity-60">
+                Export your profile data or copy your permanent identifiers.
+              </p>
+
+              <button
+                type="button"
+                onClick={exportUserData}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-[var(--accent)]" />
+                Export Profile Data (.json)
+              </button>
+            </div>
+
           </div>
         </div>
         
@@ -424,14 +581,14 @@ export default function ProfilePage() {
               </button>
               <button 
                 onClick={() => handleSave(formData, false)} 
-                disabled={saving || !formData.username || formData.username.length < 3} 
-                className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5 justify-center"
+                disabled={saving || !formData.username || formData.username.length < 3 || usernameAvailable === false} 
+                className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5 justify-center cursor-pointer disabled:opacity-50"
               >
                 {saving ? (
                   <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                 ) : (
                   <>
-                    Save
+                    Save Changes
                     <CheckCircle2 className="w-4 h-4" />
                   </>
                 )}

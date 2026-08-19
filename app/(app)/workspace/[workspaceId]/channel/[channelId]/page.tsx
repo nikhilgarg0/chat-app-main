@@ -619,12 +619,13 @@ export default function ChannelPage() {
             )}
 
             {/* Input Bar */}
-            <div className={`w-full flex flex-col gap-1 bg-[var(--bg-elevated)] border border-[var(--border)] focus-within:border-[var(--accent)] focus-within:shadow-[0_0_0_3px_var(--accent-glow)] p-[4px] md:pr-[6px] transition-all relative z-10 min-h-[48px] ${replyTo ? "rounded-b-[20px] rounded-t-none" : "rounded-[20px]"}`}>
+            <div className={`w-full flex flex-col gap-1 bg-[var(--bg-elevated)] border border-[var(--border)] focus-within:border-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--accent)]/30 p-[4px] md:pr-[6px] transition-all relative z-10 min-h-[48px] ${replyTo ? "rounded-b-2xl rounded-t-none" : "rounded-2xl"}`}>
               {!connected && (
                 <div className="w-full text-center py-1 mt-1">
                   <span className="text-xs font-medium text-red-400 bg-red-400/10 px-3 py-1 rounded-full">Reconnecting to server... Messages are disabled</span>
                 </div>
               )}
+
               <div className="w-full flex-1 flex items-center gap-1 h-full pl-3 md:pl-4 py-1">
                 {activeCommand && (
                   <span style={{

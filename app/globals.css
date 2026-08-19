@@ -3,72 +3,86 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* TCB BLUE BRAND DESIGN SYSTEM - LIGHT MODE */
+/* APPLE HUMAN INTERFACE DESIGN SYSTEM (HIG) - LIGHT MODE */
 :root {
-  --bg-base: #f4f8fc;
+  --bg-base: #f5f5f7;
   --bg-surface: #ffffff;
-  --bg-elevated: #ebf3fa;
-  --bg-glass: rgba(255, 255, 255, 0.85);
-  --border: rgba(0, 115, 181, 0.12);
-  --border-strong: rgba(0, 115, 181, 0.24);
-  --text-primary: #001223;
-  --text-secondary: rgba(0, 79, 127, 0.65);
-  --text-tertiary: rgba(0, 79, 127, 0.4);
-  --accent: #0073B5;
-  --accent-hover: #0099EE;
-  --accent-glow: rgba(0, 115, 181, 0.12);
-  --success: #10b981;
-  --ai-accent: #0099EE;
-  --ai-bg: rgba(0, 153, 238, 0.08);
-  --shadow-sm: 0 1px 3px rgba(0, 18, 35, 0.05);
-  --shadow: 0 4px 16px rgba(0, 18, 35, 0.08);
+  --bg-elevated: #e5e5ea;
+  --bg-glass: rgba(255, 255, 255, 0.75);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --accent-glow: rgba(0, 113, 227, 0.18);
+  --success: #34c759;
+  --ai-accent: #0071e3;
+  --ai-bg: rgba(0, 113, 227, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --apple-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --apple-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* TCB BLUE BRAND DESIGN SYSTEM - DARK MODE (LINEAR & STRIPE STYLE) */
+/* APPLE HUMAN INTERFACE DESIGN SYSTEM (HIG) - DARK MODE */
 .dark {
-  --bg-base: #001223;
-  --bg-surface: #00192e;
-  --bg-elevated: #00243d;
-  --bg-glass: rgba(0, 18, 35, 0.75);
-  --border: rgba(129, 189, 255, 0.14);
-  --border-strong: rgba(129, 189, 255, 0.25);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(206, 226, 255, 0.65);
-  --text-tertiary: rgba(206, 226, 255, 0.4);
-  --accent: #0099EE;
-  --accent-hover: #81BDFF;
-  --accent-glow: rgba(0, 153, 238, 0.2);
-  --success: #34d399;
-  --ai-accent: #81BDFF;
-  --ai-bg: rgba(129, 189, 255, 0.1);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --bg-base: #000000;
+  --bg-surface: #1c1c1e;
+  --bg-elevated: #2c2c2e;
+  --bg-glass: rgba(28, 28, 30, 0.75);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --text-primary: #f5f5f7;
+  --text-secondary: #86868b;
+  --text-tertiary: #6e6e73;
+  --accent: #0a84ff;
+  --accent-hover: #409cff;
+  --accent-glow: rgba(10, 132, 255, 0.25);
+  --success: #30d158;
+  --ai-accent: #0a84ff;
+  --ai-bg: rgba(10, 132, 255, 0.12);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
 }
 
 /* GLOBAL RESET & TYPOGRAPHY */
 * {
   box-sizing: border-box;
+  letter-spacing: -0.015em;
 }
 
 body {
   background-color: var(--bg-base);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
   font-size: 14px;
   line-height: 1.5;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s var(--apple-spring);
 }
 
-/* Linear-style backdrop subtle ambient glow */
-.dark body {
-  background-image: 
-    radial-gradient(circle at 20% 20%, rgba(0, 153, 238, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(0, 79, 127, 0.12) 0%, transparent 40%);
-  background-attachment: fixed;
+/* Apple Frosted Glass Panels */
+.apple-glass {
+  background-color: var(--bg-glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border);
 }
+
+/* Apple Spring Press Feedback */
+.apple-press {
+  transition: transform 0.2s var(--apple-spring), background-color 0.2s var(--apple-spring), border-color 0.2s var(--apple-spring);
+}
+.apple-press:active {
+  transform: scale(0.97);
+}
+
 
 /* Universal Backdrop Blur for Glass Panels */
+
 [class*="bg-\\[var(--bg-surface)\\]"],
 [class*="bg-\\[var(--bg-elevated)\\]"],
 [class*="bg-\\[var(--bg-glass)\\]"] {

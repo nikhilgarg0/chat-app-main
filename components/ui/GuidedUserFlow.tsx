@@ -6,12 +6,12 @@ import {
   CheckCircle2, 
   Circle, 
   ArrowRight, 
-  Sparkles, 
   Building2, 
   MessageSquarePlus, 
   UserCheck, 
   ChevronDown, 
-  ChevronUp 
+  ChevronUp,
+  X 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -37,6 +37,12 @@ export default function GuidedUserFlow({
   hasChannels = false,
 }: GuidedUserFlowProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("nexus_guided_flow_dismissed") === "true";
+    }
+    return false;
+  });
 
   const isProfileComplete = Boolean(
     userProfile?.displayName && (userProfile?.avatarUrl || userProfile?.bio)
@@ -70,34 +76,37 @@ export default function GuidedUserFlow({
       icon: MessageSquarePlus,
       completed: hasChannels,
     },
-    {
-      id: "ai",
-      title: "Try Nexus AI Assistant",
-      description: "Ask AI to draft messages, summarize discussions, or answer questions.",
-      actionText: "Chat with AI",
-      actionHref: "/home?openAi=true",
-      icon: Sparkles,
-      completed: false,
-    },
   ];
 
   const completedCount = steps.filter((s) => s.completed).length;
   const progressPercent = Math.round((completedCount / steps.length) * 100);
 
+  // If all steps are completed OR user temporarily dismissed it, hide card completely
+  if (completedCount === steps.length || isDismissed) {
+    return null;
+  }
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("nexus_guided_flow_dismissed", "true");
+    }
+  };
+
   return (
-    <div className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-4 sm:p-6 transition-all duration-150">
+    <div className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 sm:p-6 transition-all duration-200 apple-glass shadow-sm">
       {/* Header Banner */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-white">
-            <Sparkles className="h-4.5 w-4.5" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--accent)] text-white shadow-sm">
+            <Building2 className="h-4.5 w-4.5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-[18px] font-semibold text-[var(--text-primary)] tracking-tight">
                 Getting Started with Nexus
               </h2>
-              <span className="rounded-md bg-[var(--accent)]/10 px-2 py-0.5 text-[13px] font-medium text-[var(--accent)] border border-[var(--accent)]/20">
+              <span className="rounded-full bg-[var(--accent)]/10 px-2.5 py-0.5 text-[12px] font-medium text-[var(--accent)] border border-[var(--accent)]/20">
                 {completedCount}/{steps.length} Steps
               </span>
             </div>
@@ -107,14 +116,27 @@ export default function GuidedUserFlow({
           </div>
         </div>
 
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)] transition-colors"
-          aria-label="Toggle step checklist"
-        >
-          {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)] transition-colors apple-press"
+            aria-label="Toggle step checklist"
+            title={isCollapsed ? "Expand" : "Collapse"}
+          >
+            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </button>
+
+          <button
+            onClick={handleDismiss}
+            className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-red-500/10 text-[var(--text-secondary)] hover:text-red-500 transition-colors apple-press"
+            aria-label="Dismiss banner temporarily"
+            title="Dismiss card"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
+
 
       {/* Progress Bar */}
       <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--bg-elevated)] border border-[var(--border)]">
@@ -126,7 +148,7 @@ export default function GuidedUserFlow({
 
       {/* Step Cards Grid */}
       {!isCollapsed && (
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {steps.map((step, idx) => {
             const Icon = step.icon;
             return (
@@ -171,7 +193,7 @@ export default function GuidedUserFlow({
                 {!step.completed ? (
                   <Link href={step.actionHref} className="w-full mt-auto">
                     <Button
-                      variant={step.id === "ai" ? "ai" : "primary"}
+                      variant="primary"
                       size="sm"
                       className="w-full justify-between text-xs rounded-lg"
                     >
@@ -193,4 +215,5 @@ export default function GuidedUserFlow({
     </div>
   );
 }
+
 

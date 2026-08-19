@@ -19,27 +19,36 @@ export function getErrorMessage(err: unknown): string {
     code.includes("wrong-password") ||
     code.includes("auth/invalid-email")
   )
-    return "Invalid email or password.";
+    return "Invalid email or password. Please check your credentials and try again.";
   if (code.includes("too-many-requests"))
-    return "Too many failed attempts. Please try again later.";
+    return "Too many failed attempts. Please wait a moment and try again.";
   if (code.includes("email-already-in-use"))
-    return "An account with this email already exists.";
+    return "An account with this email already exists. Try signing in instead.";
   if (code.includes("weak-password"))
-    return "Password should be at least 6 characters.";
+    return "Password should be at least 6 characters long.";
   if (code.includes("popup-closed")) return "Google sign-in was cancelled.";
   if (code.includes("network-request-failed"))
-    return "Network error. Please check your connection.";
+    return "Network connection issue. Please check your internet connection and try again.";
+
+  // Authorization & Permission Errors
+  if (code.includes("Unauthorized") || code.includes("401") || code.includes("unauthorized"))
+    return "Your session requires re-authentication. Please refresh or sign in again.";
+  if (code.includes("Forbidden") || code.includes("403") || code.includes("forbidden"))
+    return "You do not have permission to perform this action or access this workspace.";
+  if (code.includes("Workspace not found") || code.includes("User not found"))
+    return "The requested workspace or user profile could not be found.";
 
   // Generic server error
   if (code.includes("Internal Server Error"))
-    return "An unexpected error occurred. Please try again.";
+    return "An unexpected server error occurred. Please try again in a few moments.";
 
   // Fallback for raw Firebase errors
   if (code.startsWith("Firebase:"))
-    return "Authentication failed. Please check your credentials.";
+    return "Authentication failed. Please check your account details.";
 
   return code || "An unexpected error occurred. Please try again.";
 }
+
 
 /**
  * Format an ISO timestamp (or Date) for display in the user's local timezone.

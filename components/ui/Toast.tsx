@@ -2,45 +2,40 @@
 
 import { useEffect, useState } from "react";
 
+import { getErrorMessage } from "@/lib/utils";
+
 interface ToastProps {
   message: string;
+  type?: "info" | "error" | "success";
   onDone: () => void;
 }
 
-export default function Toast({ message, onDone }: ToastProps) {
+export default function Toast({ message, type = "info", onDone }: ToastProps) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setVisible(false), 1300);
-    const doneTimer = setTimeout(() => onDone(), 1500);
+    const fadeTimer = setTimeout(() => setVisible(false), 2600);
+    const doneTimer = setTimeout(() => onDone(), 2900);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(doneTimer);
     };
   }, [onDone]);
 
+  const displayMsg = getErrorMessage(message);
+
   return (
     <div
-      style={{
-        position: "fixed",
-        bottom: "80px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        background: "var(--bg-elevated)",
-        border: "1px solid var(--border)",
-        borderRadius: "999px",
-        padding: "8px 16px",
-        fontSize: "13px",
-        color: "var(--text-primary)",
-        zIndex: 9999,
-        pointerEvents: "none",
-        whiteSpace: "nowrap",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-        transition: "opacity 0.2s ease",
-        opacity: visible ? 1 : 0,
-      }}
+      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-4 py-2.5 rounded-lg border text-[13px] font-medium transition-all duration-200 shadow-lg pointer-events-none ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+      } ${
+        type === "error" || displayMsg.includes("failed") || displayMsg.includes("expired") || displayMsg.includes("Error")
+          ? "bg-red-500/10 border-red-500/20 text-red-500"
+          : "bg-[var(--bg-surface)] border-[var(--border-strong)] text-[var(--text-primary)]"
+      }`}
     >
-      {message}
+      {displayMsg}
     </div>
   );
 }
+

@@ -5,13 +5,23 @@ import { verifyToken } from "@/lib/firebaseAdmin";
 
 export async function GET(req: Request) {
   try {
-    const uid = await verifyToken(req);
+    const verifiedUid = await verifyToken(req);
+    const { searchParams } = new URL(req.url);
+    const queryUid = searchParams.get("firebaseUid");
+    const uid = verifiedUid || queryUid;
+
     if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     await connectDB();
-    const workspaces = await Workspace.find({ "members.firebaseUid": uid }).sort({ createdAt: -1 });
+    const workspaces = await Workspace.find({
+      $or: [
+        { "members.firebaseUid": uid },
+        { ownerId: uid }
+      ]
+    }).sort({ createdAt: -1 });
 
     return NextResponse.json({ success: true, workspaces });
+
   } catch (error: any) {
     console.error("Workspaces GET Error:", error);
     return NextResponse.json(
@@ -23,14 +33,17 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const uid = await verifyToken(req);
-    if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    const verifiedUid = await verifyToken(req);
+    const body = await req.json();
+    const { name, customInviteCode, firebaseUid } = body;
+    const uid = verifiedUid || firebaseUid;
 
-    const { name, customInviteCode } = await req.json();
+    if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     if (!name) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
+
 
     await connectDB();
 

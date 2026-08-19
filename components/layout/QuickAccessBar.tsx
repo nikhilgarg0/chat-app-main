@@ -16,6 +16,7 @@ import {
   X,
   Compass
 } from "lucide-react";
+import BrandLogo from "@/components/ui/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
 import { useSidebar } from "@/components/SidebarContext";
@@ -36,91 +37,78 @@ export default function QuickAccessBar({
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-30 flex h-12 w-full items-center justify-between border-b border-[var(--border)] bg-[var(--bg-glass)] px-4 backdrop-blur-md transition-all">
-      {/* Left: Mobile Sidebar Toggle + Brand Logo */}
-      <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={toggleSidebar}
-          className="md:hidden text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg"
-          aria-label="Toggle sidebar menu"
-        >
-          {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-        </Button>
-
-        <Link href="/home" className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] tracking-tight">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--accent)] text-white">
-            <Compass className="h-3.5 w-3.5" />
-          </div>
-          <span className="hidden sm:inline-block font-semibold tracking-tight text-[15px]">
-            NEXUS
-          </span>
-        </Link>
-      </div>
-
-      {/* Center / Quick Access Actions Bar */}
-      <div className="flex items-center gap-2">
-        {/* Quick Create Workspace */}
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={onOpenCreateWorkspace}
-          className="hidden sm:inline-flex gap-1.5 text-[13px] font-medium rounded-lg"
-        >
-          <Building2 className="h-3.5 w-3.5 text-[var(--accent)]" />
-          <span>New Workspace</span>
-        </Button>
-
-        {/* Quick New Channel */}
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={onOpenCreateChannel}
-          className="hidden md:inline-flex gap-1.5 text-[13px] font-medium rounded-lg"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          <span>New Channel</span>
-        </Button>
-
-        {/* AI Assistant Direct Launch */}
-        <Button
-          variant="ai"
-          size="xs"
-          onClick={onOpenAi}
-          className="gap-1.5 text-[13px] font-semibold rounded-lg"
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          <span className="hidden xs:inline">Nexus AI</span>
-        </Button>
-      </div>
-
-      {/* Right Controls: Search, Theme Toggle, Profile */}
-      <div className="flex items-center gap-1.5">
-        {/* Global Theme Switcher */}
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="text-[var(--text-secondary)] opacity-80 hover:opacity-100 rounded-lg"
-          title="Toggle Dark/Light Mode"
-        >
-          {theme === "dark" ? <Sun className="h-3.5 w-3.5 text-amber-400" /> : <Moon className="h-3.5 w-3.5" />}
-        </Button>
-
-        {/* Profile Shortcut */}
-        <Link href="/profile">
+    <div className="sticky top-3 z-30 w-full flex justify-center px-4 pointer-events-none mb-2">
+      <header className="pointer-events-auto flex h-11 items-center justify-between gap-3 sm:gap-4 rounded-full border border-[var(--border)] bg-[var(--bg-glass)] px-3.5 sm:px-4 backdrop-blur-2xl shadow-lg transition-all max-w-4xl w-full">
+        {/* Left: Mobile Sidebar Toggle */}
+        <div className="flex items-center gap-2.5 shrink-0">
           <Button
             variant="ghost"
             size="icon-xs"
-            className="text-[var(--text-secondary)] opacity-80 hover:opacity-100 rounded-lg"
-            title="Profile & Settings"
+            onClick={toggleSidebar}
+            className="md:hidden text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-full apple-press"
+            aria-label="Toggle sidebar menu"
           >
-            <User className="h-3.5 w-3.5" />
+            {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </Button>
-        </Link>
-      </div>
-    </header>
+        </div>
+
+
+        {/* Center / Quick Access Actions Bar */}
+        <div className="flex items-center gap-2">
+          {/* Quick Create Workspace */}
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={onOpenCreateWorkspace}
+            className="hidden sm:inline-flex gap-1.5 text-[13px] font-medium rounded-full bg-[var(--bg-elevated)]/60 hover:bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] apple-press px-3"
+          >
+            <Building2 className="h-3.5 w-3.5 text-[var(--accent)]" />
+            <span>New Workspace</span>
+          </Button>
+
+          {/* Quick New Channel */}
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={onOpenCreateChannel}
+            className="hidden md:inline-flex gap-1.5 text-[13px] font-medium rounded-full bg-[var(--bg-elevated)]/60 hover:bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] apple-press px-3"
+          >
+            <Plus className="h-3.5 w-3.5 text-[var(--text-secondary)]" />
+            <span>New Channel</span>
+          </Button>
+        </div>
+
+        <div className="h-4 w-px bg-[var(--border)] shrink-0" />
+
+        {/* Right Controls: Theme Toggle & Profile */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Global Theme Switcher */}
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-full apple-press"
+            title="Toggle Dark/Light Mode"
+          >
+            {theme === "dark" ? <Sun className="h-3.5 w-3.5 text-amber-400" /> : <Moon className="h-3.5 w-3.5" />}
+          </Button>
+
+          {/* Profile Shortcut */}
+          <Link href="/profile">
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-full apple-press"
+              title="Profile & Settings"
+            >
+              <User className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </div>
+      </header>
+    </div>
+
+
   );
 }
 

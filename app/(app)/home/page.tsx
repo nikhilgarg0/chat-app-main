@@ -305,41 +305,56 @@ export default function HomePage() {
               return (
                 <div
                   key={ws._id}
-                  className="group flex flex-col justify-between p-5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-all cursor-pointer relative"
+                  className="group relative flex flex-col justify-between p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--border-strong)] hover:shadow-apple transition-all duration-200 apple-press cursor-pointer min-h-[150px]"
                   onClick={() => router.push(`/workspace/${ws._id}`)}
                 >
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-[18px] font-semibold text-[var(--text-primary)] truncate pr-3 tracking-tight">{ws.name}</h3>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <InviteCodeReveal code={ws.inviteCode} />
+                  <div>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="font-semibold text-[17px] text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors leading-snug truncate pr-6">
+                        {ws.name}
+                      </h3>
+
                       {isOwner && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); setDeleteTarget(ws); }}
-                          className="p-1.5 rounded-md text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
-                          title="Delete workspace"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteTarget(ws);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 text-[var(--text-tertiary)] hover:text-red-500 rounded-lg hover:bg-red-500/10"
+                          title="Delete Workspace"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       )}
                     </div>
-                  </div>
-                  <div className="flex items-end justify-between mt-auto">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] opacity-60">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        <span className="text-[13px] font-medium">{ws.members?.length || 1} Members</span>
-                      </div>
-                      {isOwner && (
-                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20">
+
+                    <div className="flex items-center gap-2 mb-4">
+                      {isOwner ? (
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20">
                           Owner
                         </span>
+                      ) : (
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] opacity-60 border border-[var(--border)]">
+                          Member
+                        </span>
                       )}
+
+                      <span className="text-xs text-[var(--text-secondary)] opacity-60">
+                        {ws.members?.length || 1} {ws.members?.length === 1 ? "member" : "members"}
+                      </span>
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
+                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <span className="text-xs text-[var(--text-secondary)] opacity-60">Code:</span>
+                      <InviteCodeReveal code={ws.inviteCode} />
+                    </div>
+
                     <Button
-                      onClick={(e) => { e.stopPropagation(); router.push(`/workspace/${ws._id}`); }}
                       variant="primary"
                       size="sm"
-                      className="rounded-lg"
+                      className="rounded-xl apple-press"
                     >
                       Open
                     </Button>
@@ -348,10 +363,11 @@ export default function HomePage() {
               );
             })}
 
+
             {/* New Workspace Card */}
             <div
               onClick={() => { setShowCreateForm(true); setShowJoinForm(false); }}
-              className={`group flex flex-col justify-center items-center p-5 rounded-lg border border-dashed transition-all cursor-pointer min-h-[140px]
+              className={`group flex flex-col justify-center items-center p-5 rounded-2xl border border-dashed transition-all cursor-pointer min-h-[150px] apple-press
                 ${showCreateForm
                   ? "border-[var(--accent)] bg-[var(--bg-surface)] cursor-default"
                   : "border-[var(--border)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]"}`}
@@ -369,7 +385,7 @@ export default function HomePage() {
                     onChange={(e) => setWorkspaceName(e.target.value)}
                     autoFocus
                     onKeyDown={e => e.key === "Enter" && handleCreateWorkspace()}
-                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg px-3.5 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)]"
+                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-3.5 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)]"
                   />
                   <div className="flex gap-2 items-center">
                     <input
@@ -377,14 +393,14 @@ export default function HomePage() {
                       value={customCode}
                       onChange={(e) => setCustomCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))}
                       onKeyDown={e => e.key === "Enter" && handleCreateWorkspace()}
-                      className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg px-3.5 py-2 text-[var(--text-primary)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)] font-mono text-sm uppercase"
+                      className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-3.5 py-2 text-[var(--text-primary)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)] font-mono text-sm uppercase"
                     />
                     <Button
                       onClick={handleCreateWorkspace}
                       disabled={!workspaceName.trim() || isCreating}
                       variant="primary"
                       size="sm"
-                      className="rounded-lg shrink-0"
+                      className="rounded-xl shrink-0 apple-press"
                     >
                       {isCreating ? "Creating..." : "Create"}
                     </Button>

@@ -51,8 +51,11 @@ export default function PageLoader() {
         <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-[var(--ai-accent)]/8 rounded-full blur-[80px] pointer-events-none" />
 
         <div className="flex flex-col items-center gap-5 z-10 animate-slide-up">
-          <span className="nexus-loader" />
+          <div className="relative flex items-center justify-center">
+            <span className="nexus-loader" />
+          </div>
         </div>
+
       </div>
     </>
   );
