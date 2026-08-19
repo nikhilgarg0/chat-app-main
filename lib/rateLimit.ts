@@ -13,7 +13,7 @@ interface RateLimitEntry {
 const store = new Map<string, RateLimitEntry>();
 
 // Periodically clean expired entries to prevent memory leaks
-setInterval(() => {
+const timer = setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of store) {
     if (now > entry.resetAt) {
@@ -21,6 +21,9 @@ setInterval(() => {
     }
   }
 }, 60_000);
+if (timer && typeof timer.unref === "function") {
+  timer.unref();
+}
 
 interface RateLimitOptions {
   /** Maximum requests allowed in the window */

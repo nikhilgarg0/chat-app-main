@@ -202,20 +202,22 @@ export default function ChannelPage() {
     sendTyping(username, false);
 
     try {
-      if (text.startsWith("/ask ") || text.startsWith("/summarize") || text.startsWith("/todo")) {
+      if (text.startsWith("/ask") || text.startsWith("/summarize") || text.startsWith("/todo") || text.startsWith("/ai")) {
         const parts = text.split(" ");
-        const command = parts[0].substring(1);
+        const command = parts[0].substring(1).toLowerCase();
         const arg = parts.slice(1).join(" ");
 
         setIsThinking(true);
         try {
           const res = await authFetch("/api/ai", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               command,
               messages: arg,
               channelId,
-              workspaceId
+              workspaceId,
+              firebaseUid: auth.currentUser?.uid,
             })
           });
 
@@ -224,10 +226,12 @@ export default function ChannelPage() {
           } else if (res.status === 429) {
             setToast("Rate limit exceeded. Please wait before making another AI request.");
           } else {
-            setToast("AI request failed. Please try again.");
+            const errData = await res.json().catch(() => ({}));
+            setToast(errData.error || "AI request failed. Please try again.");
           }
         } catch (err) {
-          console.error(err);
+          console.error("AI Request error:", err);
+          setToast("Failed to communicate with AI.");
         } finally {
           setIsThinking(false);
         }

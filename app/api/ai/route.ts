@@ -55,16 +55,18 @@ export async function POST(req: Request) {
       .join("\n");
 
     let prompt = "";
+    const cleanCommand = command.toLowerCase().trim();
 
-    if (command === "ask") {
-      const userQuestion = messages || "";
-      prompt = `You are Nexus AI, a helpful assistant.\nBased on this conversation:\n${contextStr}\n\nAnswer this question: ${userQuestion}\nBe concise and helpful.`;
-    } else if (command === "summarize") {
-      prompt = `You are Nexus AI. Summarize this conversation in 3-5 bullet points:\n${contextStr}`;
-    } else if (command === "todo") {
-      prompt = `You are Nexus AI. Extract all action items and tasks from this conversation:\n${contextStr}\nFormat as a numbered list.`;
+    if (cleanCommand === "ask" || cleanCommand === "ai") {
+      const userQuestion = messages?.trim() || "What can you tell me about this channel?";
+      prompt = `You are Nexus AI, a smart workspace assistant.\n\nChannel Conversation History:\n${contextStr || "No previous messages in this channel."}\n\nUser Question: ${userQuestion}\n\nProvide a direct, concise, and helpful response.`;
+    } else if (cleanCommand === "summarize" || cleanCommand === "summary") {
+      prompt = `You are Nexus AI, a smart workspace assistant.\n\nChannel Conversation History:\n${contextStr || "No previous messages in this channel."}\n\nTask: Summarize this channel's conversation in 3-5 concise bullet points highlighting key discussions and outcomes.`;
+    } else if (cleanCommand === "todo" || cleanCommand === "tasks") {
+      prompt = `You are Nexus AI, a smart workspace assistant.\n\nChannel Conversation History:\n${contextStr || "No previous messages in this channel."}\n\nTask: Extract all actionable to-dos, tasks, and follow-ups from this channel's discussion. Format as a clean checklist. If no tasks are present, clearly state that.`;
     } else {
-      return NextResponse.json({ success: false, error: "Invalid command" }, { status: 400 });
+      const query = messages?.trim() || cleanCommand;
+      prompt = `You are Nexus AI, a smart workspace assistant.\n\nChannel Conversation History:\n${contextStr || "No previous messages in this channel."}\n\nUser Prompt: ${query}\n\nProvide a helpful, well-formatted response.`;
     }
 
     const aiResponseText = await generateAIResponse(prompt, "");
