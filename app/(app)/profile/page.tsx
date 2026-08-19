@@ -67,14 +67,16 @@ export default function ProfilePage() {
           if (data.success && data.user) {
             const loaded = {
               ...data.user,
+              email: data.user.email || user.email || "",
+              displayName: data.user.displayName || user.displayName || "",
               socialLinks: data.user.socialLinks || { twitter: "", github: "", linkedin: "", website: "" },
               notificationPrefs: data.user.notificationPrefs || { mentions: true, allMessages: false, sounds: true },
               coverColor: data.user.coverColor || "#2563eb",
               theme: data.user.theme || "system",
               bio: data.user.bio || "",
               customStatus: data.user.customStatus || "",
-              timezone: data.user.timezone || "UTC",
-              avatarUrl: data.user.avatarUrl || "",
+              timezone: data.user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+              avatarUrl: data.user.avatarUrl || user.photoURL || "",
               username: data.user.username || ""
             };
             setOriginalData(loaded);
@@ -137,12 +139,25 @@ export default function ProfilePage() {
   };
 
   const handleDiscard = () => {
-    setFormData(JSON.parse(JSON.stringify(originalData)));
+    if (originalData) {
+      setFormData(JSON.parse(JSON.stringify(originalData)));
+    }
     setIsDirty(false);
     setErrorVisible(null);
   };
 
   const handleSave = async (dataToSave = formData, isSilent = false) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      if (!isSilent) setErrorVisible("You must be logged in to save changes.");
+      return;
+    }
+
+    if (dataToSave.displayName !== undefined && !dataToSave.displayName.trim()) {
+      if (!isSilent) setErrorVisible("Display name cannot be empty.");
+      return;
+    }
+
     if (!isSilent) setSaving(true);
     setErrorVisible(null);
 
@@ -150,12 +165,13 @@ export default function ProfilePage() {
       const res = await authFetch("/api/users/profile", {
         method: "POST",
         body: JSON.stringify({
-          firebaseUid: auth.currentUser?.uid,
+          firebaseUid: currentUser.uid,
+          email: dataToSave.email || currentUser.email || undefined,
           ...dataToSave,
         }),
       });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setOriginalData(JSON.parse(JSON.stringify(dataToSave)));
         setIsDirty(false);
         if (!isSilent) setToastMessage("Profile updated successfully");

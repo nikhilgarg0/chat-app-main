@@ -5,6 +5,7 @@ import { verifyToken } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
+    const verifiedUid = await verifyToken(req);
     const body = await req.json();
     const { 
       firebaseUid, email, username, displayName, avatarUrl,
@@ -12,40 +13,90 @@ export async function POST(req: Request) {
       notificationPrefs, theme, coverColor, onboardingComplete
     } = body;
 
-    if (!firebaseUid || !email || !displayName) {
+    const targetUid = verifiedUid || firebaseUid;
+
+    if (!targetUid) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields" },
-        { status: 400 }
+        { success: false, error: "Missing user identifier" },
+        { status: 401 }
+      );
+    }
+
+    if (verifiedUid && firebaseUid && verifiedUid !== firebaseUid) {
+      return NextResponse.json(
+        { success: false, error: "Forbidden" },
+        { status: 403 }
       );
     }
 
     await connectDB();
 
+    const existingUser = await User.findOne({ firebaseUid: targetUid });
+
     const updateData: any = {
-      firebaseUid,
-      email,
-      displayName: typeof displayName === 'string' ? displayName.trim() : displayName,
+      firebaseUid: targetUid,
     };
 
-    if (username && typeof username === 'string') {
+    // Handle email
+    if (typeof email === "string" && email.trim()) {
+      updateData.email = email.trim().toLowerCase();
+    } else if (!existingUser) {
+      return NextResponse.json(
+        { success: false, error: "Email is required for new accounts" },
+        { status: 400 }
+      );
+    }
+
+    // Handle display name
+    if (typeof displayName === "string" && displayName.trim()) {
+      updateData.displayName = displayName.trim();
+    } else if (displayName !== undefined && typeof displayName === "string" && !displayName.trim()) {
+      return NextResponse.json(
+        { success: false, error: "Display name cannot be empty" },
+        { status: 400 }
+      );
+    } else if (!existingUser) {
+      return NextResponse.json(
+        { success: false, error: "Display name is required" },
+        { status: 400 }
+      );
+    }
+
+    // Handle username
+    if (username !== undefined && typeof username === "string") {
       const cleanUsername = username.trim().toLowerCase();
-      if (/^[a-zA-Z0-9_]{3,20}$/.test(cleanUsername)) {
+      if (cleanUsername) {
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(cleanUsername)) {
+          return NextResponse.json(
+            { success: false, error: "Username must be 3-20 characters long (alphanumeric and underscore only)." },
+            { status: 400 }
+          );
+        }
+
+        // Check if username belongs to another user
+        const existingUsernameUser = await User.findOne({ username: cleanUsername }).select("firebaseUid").lean();
+        if (existingUsernameUser && existingUsernameUser.firebaseUid !== targetUid) {
+          return NextResponse.json(
+            { success: false, error: "Username is already taken." },
+            { status: 409 }
+          );
+        }
         updateData.username = cleanUsername;
       }
     }
 
-    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
+    if (avatarUrl !== undefined && typeof avatarUrl === "string") updateData.avatarUrl = avatarUrl;
     if (typeof bio === "string") updateData.bio = bio.trim().substring(0, 160);
     if (typeof customStatus === "string") updateData.customStatus = customStatus.trim().substring(0, 80);
     if (typeof timezone === "string") updateData.timezone = timezone.trim();
     
     if (socialLinks && typeof socialLinks === "object") {
-      updateData.socialLinks = {
-        twitter: typeof socialLinks.twitter === "string" ? socialLinks.twitter.trim() : undefined,
-        github: typeof socialLinks.github === "string" ? socialLinks.github.trim() : undefined,
-        linkedin: typeof socialLinks.linkedin === "string" ? socialLinks.linkedin.trim() : undefined,
-        website: typeof socialLinks.website === "string" ? socialLinks.website.trim() : undefined,
-      };
+      const cleanedSocial: Record<string, string> = {};
+      if (typeof socialLinks.twitter === "string") cleanedSocial.twitter = socialLinks.twitter.trim();
+      if (typeof socialLinks.github === "string") cleanedSocial.github = socialLinks.github.trim();
+      if (typeof socialLinks.linkedin === "string") cleanedSocial.linkedin = socialLinks.linkedin.trim();
+      if (typeof socialLinks.website === "string") cleanedSocial.website = socialLinks.website.trim();
+      updateData.socialLinks = cleanedSocial;
     }
 
     if (notificationPrefs && typeof notificationPrefs === "object") {
@@ -68,23 +119,36 @@ export async function POST(req: Request) {
       updateData.onboardingComplete = onboardingComplete;
     }
 
-    let user = await User.findOneAndUpdate(
-      { firebaseUid },
+    const user = await User.findOneAndUpdate(
+      { firebaseUid: targetUid },
       { $set: updateData },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     return NextResponse.json({ success: true, user });
   } catch (error: any) {
     console.error("Profile POST Error:", error);
-    if (error.code === 11000 && error.keyPattern?.username) {
-       return NextResponse.json(
-         { success: false, error: "Username is already taken." },
-         { status: 409 }
-       );
+    if (error.code === 11000) {
+      const errStr = JSON.stringify(error) + " " + (error.message || "");
+      if (error.keyPattern?.username || error.keyValue?.username || errStr.includes("username")) {
+        return NextResponse.json(
+          { success: false, error: "Username is already taken." },
+          { status: 409 }
+        );
+      }
+      if (error.keyPattern?.email || error.keyValue?.email || errStr.includes("email")) {
+        return NextResponse.json(
+          { success: false, error: "Email is already registered with another account." },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json(
+        { success: false, error: "A unique constraint conflict occurred." },
+        { status: 409 }
+      );
     }
     return NextResponse.json(
-      { success: false, error: "Internal Server Error" },
+      { success: false, error: error.message || "Failed to update profile." },
       { status: 500 }
     );
   }
