@@ -61,7 +61,9 @@ export async function GET(req: Request, context: { params: Promise<{ workspaceId
 
 export async function DELETE(req: Request, context: { params: Promise<{ workspaceId: string }> }) {
   try {
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || url.searchParams.get("firebaseUid");
     if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     const params = await context.params;

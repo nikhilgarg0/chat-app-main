@@ -138,7 +138,8 @@ export default function WorkspacePage() {
       {!workspace ? (
         <WorkspaceOverviewSkeleton />
       ) : (
-        <div className="flex flex-1 flex-col items-center p-8 z-10 animate-slide-up relative overflow-y-auto">
+        <div className="flex flex-1 flex-col items-center p-4 sm:p-8 z-10 animate-slide-up relative overflow-y-auto w-full">
+
 
           {/* Workspace Hero */}
           <div className="text-center mb-10">

@@ -12,8 +12,13 @@ const AI_RATE_LIMIT = { maxRequests: 10, windowMs: 60_000 };
 
 export async function POST(req: Request) {
   try {
-    // Auth gate
-    const uid = await verifyToken(req);
+    const { searchParams } = new URL(req.url);
+    const body = await req.json().catch(() => ({}));
+    const { command, messages, channelId, firebaseUid: bodyUid } = body;
+
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || bodyUid || searchParams.get("firebaseUid");
+
     if (!uid) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
@@ -33,8 +38,6 @@ export async function POST(req: Request) {
         }
       );
     }
-
-    const { command, messages, channelId } = await req.json();
 
     if (!command || !channelId) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });

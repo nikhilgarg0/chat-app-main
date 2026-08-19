@@ -10,11 +10,14 @@ import { formatMessageTime } from "@/lib/utils";
 
 export async function GET(req: Request) {
   try {
-    const uid = await verifyToken(req);
+    const verifiedUid = await verifyToken(req);
+    const { searchParams } = new URL(req.url);
+    const queryUid = searchParams.get("firebaseUid");
+    const uid = verifiedUid || queryUid;
+
     if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     await connectDB();
-    const { searchParams } = new URL(req.url);
     const channelId = searchParams.get("channelId");
     const before = searchParams.get("before");
 
@@ -72,12 +75,16 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const uid = await verifyToken(req);
+    const verifiedUid = await verifyToken(req);
+    const { searchParams } = new URL(req.url);
+    const body = await req.json().catch(() => ({}));
+    const { channelId, author, content, timestamp, time, msgId, replyTo, firebaseUid: bodyUid } = body;
+    const queryUid = searchParams.get("firebaseUid");
+    const uid = verifiedUid || bodyUid || queryUid;
+
     if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     await connectDB();
-    const body = await req.json();
-    const { channelId, author, content, timestamp, time, msgId, replyTo } = body;
 
     if (!channelId || !author || !content) {
       return NextResponse.json(

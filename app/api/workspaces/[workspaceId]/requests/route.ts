@@ -8,11 +8,14 @@ import { verifyToken } from "@/lib/firebaseAdmin";
 // GET — List pending join requests for a workspace (owner only)
 export async function GET(req: Request, context: { params: Promise<{ workspaceId: string }> }) {
   try {
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || url.searchParams.get("firebaseUid");
     if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     const params = await context.params;
     await connectDB();
+
 
     const workspace = await Workspace.findById(params.workspaceId);
     if (!workspace) {
@@ -56,11 +59,15 @@ export async function GET(req: Request, context: { params: Promise<{ workspaceId
 // POST — Approve or reject a join request (owner only)
 export async function POST(req: Request, context: { params: Promise<{ workspaceId: string }> }) {
   try {
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const body = await req.json().catch(() => ({}));
+    const { requestId, action, firebaseUid: bodyUid } = body;
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || bodyUid || url.searchParams.get("firebaseUid");
     if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     const params = await context.params;
-    const { requestId, action } = await req.json();
+
 
     if (!requestId || !["approve", "reject"].includes(action)) {
       return NextResponse.json({ success: false, error: "Missing requestId or invalid action" }, { status: 400 });

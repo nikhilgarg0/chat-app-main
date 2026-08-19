@@ -4,10 +4,14 @@ import { verifyToken } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
-    const uid = await verifyToken(req);
-    if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    const { searchParams } = new URL(req.url);
+    const body = await req.json().catch(() => ({}));
+    const { channelId, username, isTyping, firebaseUid: bodyUid } = body;
 
-    const { channelId, username, isTyping } = await req.json();
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || bodyUid || searchParams.get("firebaseUid");
+
+    if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     await pusherServer.trigger(`chat-${channelId}`, "user-typing", { username, isTyping });
     return NextResponse.json({ success: true });

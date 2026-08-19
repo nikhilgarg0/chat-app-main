@@ -40,11 +40,16 @@ export async function POST(req: Request) {
     recordUserPresence(workspaceId, username, uid, status);
 
     // Broadcast via Pusher to all workspace subscribers
-    await pusherServer.trigger(`workspace-${workspaceId}`, "presence-update", {
-      username,
-      status,
-      firebaseUid: uid
-    });
+    try {
+      await pusherServer.trigger(`workspace-${workspaceId}`, "presence-update", {
+        username,
+        status,
+        firebaseUid: uid
+      });
+    } catch (pusherErr) {
+      console.warn("[Pusher Server Warning] Presence broadcast omitted:", pusherErr);
+    }
+
 
     return NextResponse.json({ success: true, onlineUsers: getActiveWorkspaceUsers(workspaceId) });
   } catch (error: any) {

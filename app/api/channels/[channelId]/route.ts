@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { Channel } from "@/models/Channel";
@@ -5,6 +6,7 @@ import { Workspace } from "@/models/Workspace";
 import { verifyToken } from "@/lib/firebaseAdmin";
 import { pusherServer } from "@/lib/pusher-server";
 import Message from "@/models/Message";
+
 
 export async function DELETE(req: Request, context: { params: Promise<{ channelId: string }> }) {
   try {
@@ -83,8 +85,8 @@ export async function GET(req: Request, context: { params: Promise<{ channelId: 
     const params = await context.params;
     const { channelId } = params;
 
-    if (!channelId) {
-      return NextResponse.json({ success: false, error: "Missing channelId" }, { status: 400 });
+    if (!channelId || !mongoose.Types.ObjectId.isValid(channelId)) {
+      return NextResponse.json({ success: false, error: "Channel not found" }, { status: 404 });
     }
 
     await connectDB();
@@ -95,11 +97,13 @@ export async function GET(req: Request, context: { params: Promise<{ channelId: 
 
     return NextResponse.json({ success: true, channel });
   } catch (error: any) {
+    console.error("[GET Channel API Error]:", error);
     return NextResponse.json(
-      { success: false, error: "Internal Server Error" },
+      { success: false, error: error.message || "Internal Server Error" },
       { status: 500 }
     );
   }
+
 }
 
 export async function POST(req: Request, context: { params: Promise<{ channelId: string }> }) {

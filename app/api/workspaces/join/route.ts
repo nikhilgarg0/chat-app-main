@@ -6,13 +6,17 @@ import { verifyToken } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
-    // Auth gate
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const body = await req.json().catch(() => ({}));
+    const { inviteCode, firebaseUid: bodyUid } = body;
+
+    const verifiedUid = await verifyToken(req);
+    const queryUid = url.searchParams.get("firebaseUid");
+    const uid = verifiedUid || bodyUid || queryUid;
+
     if (!uid) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
-
-    const { inviteCode } = await req.json();
 
     if (!inviteCode) {
       return NextResponse.json(

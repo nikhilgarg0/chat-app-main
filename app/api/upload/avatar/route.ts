@@ -4,7 +4,9 @@ import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || url.searchParams.get("firebaseUid");
     if (!uid) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

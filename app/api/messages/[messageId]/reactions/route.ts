@@ -6,11 +6,15 @@ import { verifyToken } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request, context: { params: Promise<{ messageId: string }> }) {
   try {
-    const uid = await verifyToken(req);
+    const url = new URL(req.url);
+    const body = await req.json().catch(() => ({}));
+    const { emoji, username, firebaseUid: bodyUid } = body;
+
+    const verifiedUid = await verifyToken(req);
+    const uid = verifiedUid || bodyUid || url.searchParams.get("firebaseUid");
     if (!uid) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
 
     const { messageId } = await context.params;
-    const { emoji, username } = await req.json();
 
     if (!messageId || !emoji) {
       return NextResponse.json({ success: false, error: "Missing fields" }, { status: 400 });

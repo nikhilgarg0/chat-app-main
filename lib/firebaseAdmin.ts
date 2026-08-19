@@ -29,7 +29,8 @@ export async function verifyToken(req: Request): Promise<string | null> {
     const app = getAdminApp();
     const decoded = await app.auth().verifyIdToken(auth.split("Bearer ")[1]);
     return decoded.uid;
-  } catch {
+  } catch (err: any) {
+    console.warn("[FirebaseAdmin Warning] verifyToken error:", err?.message || err);
     return null;
   }
 }

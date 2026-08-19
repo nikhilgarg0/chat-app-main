@@ -262,16 +262,6 @@ export default function HomePage() {
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Button
-              variant="primary"
-              size="sm"
-              onClick={() => { setShowCreateForm(true); setShowJoinForm(false); }}
-              className="flex-1 sm:flex-initial gap-1.5 rounded-lg"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Create Workspace</span>
-            </Button>
-
-            <Button
               variant="outline"
               size="sm"
               onClick={() => { setShowJoinForm(true); setShowCreateForm(false); }}
@@ -289,16 +279,16 @@ export default function HomePage() {
               <Building2 className="w-6 h-6" />
             </div>
             <h2 className="text-[18px] font-semibold text-[var(--text-primary)] mb-1.5 tracking-tight">You don't have any workspaces yet</h2>
-            <p className="text-sm text-[var(--text-secondary)] opacity-60 mb-6 max-w-sm">Create a new workspace or join an existing one to start collaborating.</p>
+            <p className="text-sm text-[var(--text-secondary)] opacity-60 mb-6 max-w-sm">Join an existing workspace with an invite code to start collaborating.</p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button onClick={() => { setShowCreateForm(true); setShowJoinForm(false); }} variant="primary" className="px-6 rounded-lg">
-                Create Workspace
+              <Button onClick={() => { setShowJoinForm(true); setShowCreateForm(false); }} variant="primary" className="px-6 rounded-lg">
+                Join Workspace with Code
               </Button>
             </div>
           </div>
         ) : null}
 
-        {(workspaces.length > 0 || showCreateForm) && (
+        {workspaces.length > 0 && (
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {workspaces.map((ws: any) => {
               const isOwner = ws.ownerId === currentUid;
@@ -309,112 +299,58 @@ export default function HomePage() {
                   onClick={() => router.push(`/workspace/${ws._id}`)}
                 >
                   <div>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-semibold text-[17px] text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors leading-snug truncate pr-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-base font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">
                         {ws.name}
                       </h3>
-
                       {isOwner && (
-                        <button
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 shrink-0">
+                          Owner
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[var(--text-tertiary)] flex items-center gap-1 font-mono">
+                      Invite Code: <span className="font-bold text-[var(--text-secondary)]">{ws.inviteCode}</span>
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--border)]">
+                    <span className="text-xs text-[var(--text-secondary)] font-medium">
+                      {ws.members?.length || 1} member{(ws.members?.length || 1) !== 1 ? 's' : ''}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      {isOwner && (
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onClick={(e) => {
                             e.stopPropagation();
                             setDeleteTarget(ws);
                           }}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 text-[var(--text-tertiary)] hover:text-red-500 rounded-lg hover:bg-red-500/10"
-                          title="Delete Workspace"
+                          className="text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                          title="Delete workspace"
                         >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 mb-4">
-                      {isOwner ? (
-                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20">
-                          Owner
-                        </span>
-                      ) : (
-                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] opacity-60 border border-[var(--border)]">
-                          Member
-                        </span>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
                       )}
 
-                      <span className="text-xs text-[var(--text-secondary)] opacity-60">
-                        {ws.members?.length || 1} {ws.members?.length === 1 ? "member" : "members"}
-                      </span>
+                      <Button
+                        variant="primary"
+                        size="xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/workspace/${ws._id}`);
+                        }}
+                        className="rounded-lg text-xs font-semibold px-3"
+                      >
+                        Open
+                      </Button>
                     </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
-                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                      <span className="text-xs text-[var(--text-secondary)] opacity-60">Code:</span>
-                      <InviteCodeReveal code={ws.inviteCode} />
-                    </div>
-
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="rounded-xl apple-press"
-                    >
-                      Open
-                    </Button>
                   </div>
                 </div>
               );
             })}
-
-
-            {/* New Workspace Card */}
-            <div
-              onClick={() => { setShowCreateForm(true); setShowJoinForm(false); }}
-              className={`group flex flex-col justify-center items-center p-5 rounded-2xl border border-dashed transition-all cursor-pointer min-h-[150px] apple-press
-                ${showCreateForm
-                  ? "border-[var(--accent)] bg-[var(--bg-surface)] cursor-default"
-                  : "border-[var(--border)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]"}`}
-            >
-              {!showCreateForm ? (
-                <div className="flex flex-col items-center gap-2 text-[var(--text-secondary)] opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Plus className="w-5 h-5 text-[var(--accent)]" />
-                  <span className="text-sm font-semibold text-[var(--text-primary)]">New Workspace</span>
-                </div>
-              ) : (
-                <div className="w-full flex flex-col gap-3 animate-slide-up" onClick={e => e.stopPropagation()}>
-                  <input
-                    placeholder="Workspace Name"
-                    value={workspaceName}
-                    onChange={(e) => setWorkspaceName(e.target.value)}
-                    autoFocus
-                    onKeyDown={e => e.key === "Enter" && handleCreateWorkspace()}
-                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-3.5 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)]"
-                  />
-                  <div className="flex gap-2 items-center">
-                    <input
-                      placeholder="Custom code (optional, 4-8 chars)"
-                      value={customCode}
-                      onChange={(e) => setCustomCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))}
-                      onKeyDown={e => e.key === "Enter" && handleCreateWorkspace()}
-                      className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-3.5 py-2 text-[var(--text-primary)] focus:border-[var(--accent)] outline-none transition-all placeholder:text-[var(--text-tertiary)] font-mono text-sm uppercase"
-                    />
-                    <Button
-                      onClick={handleCreateWorkspace}
-                      disabled={!workspaceName.trim() || isCreating}
-                      variant="primary"
-                      size="sm"
-                      className="rounded-xl shrink-0 apple-press"
-                    >
-                      {isCreating ? "Creating..." : "Create"}
-                    </Button>
-                  </div>
-                  {createError && <span className="text-xs text-red-500 ml-1">{createError}</span>}
-                  <button
-                    onClick={() => { setShowCreateForm(false); setWorkspaceName(""); setCustomCode(""); setCreateError(""); }}
-                    className="text-xs text-[var(--text-secondary)] opacity-60 hover:opacity-100 transition-opacity self-center mt-1"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         )}
 

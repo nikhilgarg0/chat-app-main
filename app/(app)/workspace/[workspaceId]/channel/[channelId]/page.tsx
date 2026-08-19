@@ -396,37 +396,7 @@ export default function ChannelPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-[var(--bg-base)] w-full">
-      {/* Header - Glassmorphism */}
-      <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-[var(--border)] bg-[var(--bg-glass)] backdrop-blur-[20px] backdrop-saturate-[180%] z-20 shrink-0 sticky top-0">
 
-        {/* Left Side: Hamburger */}
-        <div className="flex items-center flex-1">
-          {!isSidebarOpen && (
-            <button
-              onClick={toggleSidebar}
-              className="p-2 -ml-2 rounded-md hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-              title="Open Sidebar"
-            >
-              <svg className="w-6 h-6 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-          )}
-        </div>
-
-        {/* Center: Channel Name */}
-        <div className="flex items-center justify-center gap-1 flex-1 lg:flex-none">
-          <span className="text-[var(--text-tertiary)] font-mono text-base">#</span>
-          <h2 className="text-[var(--text-primary)] font-display font-bold text-base md:text-lg tracking-tight truncate max-w-[140px] sm:max-w-none text-center">{channelName}</h2>
-        </div>
-
-        {/* Right Side: Status Pill */}
-        <div className="flex items-center justify-end flex-1">
-          <div className="flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 rounded-full border border-[var(--border-strong)] bg-[var(--bg-surface)] shadow-sm">
-            <div className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-[var(--success)]" : "bg-red-400 animate-pulse"}`}></div>
-            <span className="text-[9px] md:text-[10px] font-mono text-[var(--text-secondary)] uppercase tracking-wider">{connected ? "Live" : "Offline"}</span>
-          </div>
-        </div>
-
-      </div>
 
       {/* Messages */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-0 py-4 scroll-smooth [&::-webkit-scrollbar]:hidden z-10 overscroll-contain flex flex-col" style={{ WebkitOverflowScrolling: "touch" }}>
@@ -550,8 +520,9 @@ export default function ChannelPage() {
       </div>
 
       {/* Input wrapper - Glassmorphism */}
-      <div className="p-4 bg-[var(--bg-glass)] backdrop-blur-[20px] backdrop-saturate-[180%] border-t border-[var(--border)] z-20 shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.02)] pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div className="p-2 sm:p-4 bg-[var(--bg-glass)] backdrop-blur-[20px] backdrop-saturate-[180%] border-t border-[var(--border)] z-20 shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.02)] pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <div className="max-w-[1000px] mx-auto flex flex-col gap-0">
+
 
           {/* Reply bar — normal flow, sits above the input bar */}
           {replyTo && (
