@@ -1,5 +1,6 @@
 import {
   getAdminApp,
+  formatPrivateKey,
   verifyToken,
   deleteFirebaseUser,
   deleteFirebaseUsers,
@@ -43,6 +44,35 @@ describe("lib/firebaseAdmin", () => {
     jest.restoreAllMocks();
   });
 
+  describe("formatPrivateKey", () => {
+    test("strips surrounding double quotes and fixes escaped newlines", () => {
+      const input = '"-----BEGIN PRIVATE KEY-----\\nMIIEvgIBADANBgkqhkiG9w0BAQE=\\n-----END PRIVATE KEY-----\\n"';
+      const expected = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQE=\n-----END PRIVATE KEY-----\n";
+      expect(formatPrivateKey(input)).toBe(expected);
+    });
+
+    test("strips surrounding single quotes", () => {
+      const input = "'-----BEGIN PRIVATE KEY-----\\nMIIEvgIBADANBgkqhkiG9w0BAQE=\\n-----END PRIVATE KEY-----\\n'";
+      const expected = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQE=\n-----END PRIVATE KEY-----\n";
+      expect(formatPrivateKey(input)).toBe(expected);
+    });
+
+    test("extracts private_key when full service account JSON is pasted", () => {
+      const json = JSON.stringify({
+        project_id: "my-project",
+        private_key: "-----BEGIN PRIVATE KEY-----\\nMIIEvgIBADANBgkqhkiG9w0BAQE=\\n-----END PRIVATE KEY-----\\n",
+      });
+      const expected = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQE=\n-----END PRIVATE KEY-----\n";
+      expect(formatPrivateKey(json)).toBe(expected);
+    });
+
+    test("reconstructs PEM when spaces separate key segments", () => {
+      const input = "-----BEGIN PRIVATE KEY----- MIIEvgIBADANBgkqhkiG9w0BAQE= -----END PRIVATE KEY-----";
+      const expected = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQE=\n-----END PRIVATE KEY-----\n";
+      expect(formatPrivateKey(input)).toBe(expected);
+    });
+  });
+
   describe("getAdminApp", () => {
     test("returns cached app if already initialized in admin.apps", () => {
       const existingApp = { name: "existing-app" } as any;
@@ -73,10 +103,37 @@ describe("lib/firebaseAdmin", () => {
       expect(app).toBe(mockAppInstance);
     });
 
+    test("initializes new app when full FIREBASE_SERVICE_ACCOUNT_KEY JSON is provided", () => {
+      delete process.env.FIREBASE_ADMIN_PROJECT_ID;
+      delete process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+      delete process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+
+      process.env.FIREBASE_SERVICE_ACCOUNT_KEY = JSON.stringify({
+        project_id: "json-project",
+        client_email: "json@example.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\\nMIIEvgIBADANBgkqhkiG9w0BAQE=\\n-----END PRIVATE KEY-----\\n",
+      });
+
+      const app = getAdminApp();
+
+      expect(admin.initializeApp).toHaveBeenCalledWith({
+        credential: expect.anything(),
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      });
+      expect(admin.credential.cert).toHaveBeenCalledWith({
+        projectId: "json-project",
+        clientEmail: "json@example.com",
+        privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQE=\n-----END PRIVATE KEY-----\n",
+      });
+      expect(app).toBe(mockAppInstance);
+    });
+
     test("throws descriptive error when required environment variables are missing", () => {
       delete process.env.FIREBASE_ADMIN_PROJECT_ID;
       delete process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
       delete process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+      delete process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+      delete process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT;
 
       expect(() => getAdminApp()).toThrow("Missing Firebase Admin credentials.");
     });
